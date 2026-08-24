@@ -8,6 +8,13 @@
 /build/
 src/main/resources/docs/
 .codex/
+!.codex/
+!.codex/skills/
+.codex/skills/*
+!.codex/skills/seedu-java-coding-standard/
+!.codex/skills/seedu-java-coding-standard/**
+!.codex/skills/seedu-git-standard/
+!.codex/skills/seedu-git-standard/**
 
 # MacOS custom attributes files created by Finder
 .DS_Store
