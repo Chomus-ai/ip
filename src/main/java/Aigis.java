@@ -1,3 +1,5 @@
+import java.util.Scanner;
+
 public class Aigis {
     public static void main(String[] args) {
         String banner = "     A       IIIII   GGGG    IIIII   SSSSS\n"
@@ -11,6 +13,16 @@ public class Aigis {
                 + "Tasks completed. See you again soon!\n"
                 + "__________________________________________________________\n";
         System.out.println(banner);
+
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            String command = scanner.nextLine();
+            System.out.println(command);
+            if (command.equals("bye")) {
+                break;
+            }
+        }
+
         System.out.println(closing);
     }
 }
