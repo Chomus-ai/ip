@@ -18,15 +18,13 @@ public class Aigis {
         System.out.println(banner);
 
         int taskCount = 0;
-        String[] taskList = new String[100];
-        boolean[] completedTasks = new boolean[100];
+        Task[] taskList = new Task[100];
         Scanner scanner = new Scanner(System.in);
         while (true) {
             String input = scanner.nextLine();
             if (input.equals("list")){ // Command to view current tasks
                 for (int i = 0; i < taskCount; i++) {
-                    String status = completedTasks[i] ? "[X]" : "[ ]";
-                    System.out.println(i + 1 + ". " + status + " " + taskList[i]);
+                    System.out.println(i + 1 + ". " + taskList[i]);
                 }
             }
             else if (input.equals("bye")) { // Command to end the program
@@ -37,7 +35,7 @@ public class Aigis {
                 try {
                     int taskDone = Integer.parseInt(taskNumber) - 1;
                     if (taskDone >= 0 && taskDone < taskCount) {
-                        completedTasks[taskDone] = true;
+                        taskList[taskDone].updateStatus(true);
                         System.out.println("Marked as done: " + taskList[taskDone]);
                     } else {
                         System.out.println("That task does not exist.");
@@ -51,7 +49,7 @@ public class Aigis {
                 try {
                     int taskDone = Integer.parseInt(taskNumber) - 1;
                     if (taskDone >= 0 && taskDone < taskCount) {
-                        completedTasks[taskDone] = false;
+                        taskList[taskDone].updateStatus(false);
                         System.out.println("Unmarked as done: " + taskList[taskDone]);
                     } else {
                         System.out.println("That task does not exist.");
@@ -62,7 +60,7 @@ public class Aigis {
             }
             else {
                 System.out.println("New objective: " + input);
-                taskList[taskCount] = input;
+                taskList[taskCount] = new Task(input);
                 taskCount++;
             }
         }
