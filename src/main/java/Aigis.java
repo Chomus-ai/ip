@@ -46,6 +46,20 @@ public class Aigis {
                     System.out.println("Please provide a valid task number.");
                 }
             }
+            else if (input.startsWith("unmark ")) { // Command to mark a task as done
+                String taskNumber = input.substring(7).trim();
+                try {
+                    int taskDone = Integer.parseInt(taskNumber) - 1;
+                    if (taskDone >= 0 && taskDone < taskCount) {
+                        completedTasks[taskDone] = false;
+                        System.out.println("Unmarked as done: " + taskList[taskDone]);
+                    } else {
+                        System.out.println("That task does not exist.");
+                    }
+                } catch (NumberFormatException e) {
+                    System.out.println("Please provide a valid task number.");
+                }
+            }
             else {
                 System.out.println("New objective: " + input);
                 taskList[taskCount] = input;
