@@ -14,12 +14,23 @@ public class Aigis {
                 + "__________________________________________________________\n";
         System.out.println(banner);
 
+        int taskCount = 0;
+        String[] taskList = new String[100];
         Scanner scanner = new Scanner(System.in);
         while (true) {
-            String command = scanner.nextLine();
-            System.out.println(command);
-            if (command.equals("bye")) {
+            String input = scanner.nextLine();
+            if (input.equals("list")){ // Command to view current tasks
+                for (int i = 0; i < taskCount; i++) {
+                    System.out.println(i+1 + ". " + taskList[i]);
+                }
+            }
+            else if (input.equals("bye")) { // Command to end the program
                 break;
+            }
+            else {
+                System.out.println("New objective: " + input);
+                taskList[taskCount] = input;
+                taskCount++;
             }
         }
 
