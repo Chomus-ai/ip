@@ -1,3 +1,5 @@
+package aigis;
+
 /**
  * Represents an objective managed by Aigis.
  */
@@ -8,7 +10,7 @@ public class Task {
     /**
      * Creates an unfinished task with the given description.
      *
-     * @param description the text describing the task
+     * @param description The text describing the task.
      */
     public Task(String description) {
         this.description = description;
@@ -18,34 +20,34 @@ public class Task {
     /**
      * Returns the marker used to show whether this task is complete.
      *
-     * @return {@code X} for a completed task, or a blank space otherwise
+     * @return {@code X} for a completed task, or a blank space otherwise.
      */
     public String getStatusIcon() {
-        return (isDone ? "X" : " "); // mark done task with X
+        return isDone ? "X" : " ";
     }
 
     /**
      * Returns the task description.
      *
-     * @return this task's description
+     * @return This task's description.
      */
     public String getDescription() {
         return description;
     }
 
     /**
-     * Updates whether this task is complete.
+     * Sets whether this task is complete.
      *
-     * @param state the new completion state
+     * @param isDone The new completion state.
      */
-    public void updateStatus(boolean state) {
-        isDone = state;
+    public void setDone(boolean isDone) {
+        this.isDone = isDone;
     }
 
     /**
      * Returns the display form used by Aigis when showing a task.
      *
-     * @return the status marker followed by the task description
+     * @return The status marker followed by the task description.
      */
     @Override
     public String toString() {
