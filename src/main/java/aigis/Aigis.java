@@ -9,13 +9,17 @@ public class Aigis {
     /** Maximum number of tasks that Aigis can store. */
     private static final int MAX_TASKS = 100;
 
-    private static final String BANNER = "     A       IIIII   GGGG    IIIII   SSSSS\n"
-            + "    A A        I     G        I     S    \n"
-            + "   AAAAA       I     G  GG    I      SSSS\n"
-            + "  A     A      I     G   G    I          S\n"
-            + " A       A   IIIII   GGGG   IIIII   SSSSS\n"
+    private static final String BANNER =
+              "      __        __     _______   __      ________  \n" +
+              "     /\"\"\\      |\" \\   /\" _   \"| |\" \\    /\"       ) \n" +
+              "    /    \\     ||  | (: ( \\___) ||  |  (:   \\___/  \n" +
+              "   /' /\\  \\    |:  |  \\/ \\      |:  |   \\___  \\    \n" +
+              "  //  __'  \\   |.  |  //  \\ ___ |.  |    __/  \\\\   \n" +
+              " /   /  \\\\  \\  /\\  |\\(:   _(  _|/\\  |\\  /\" \\   :)  \n" +
+              "(___/    \\___)(__\\_|_)\\_______)(__\\_|_)(_______/   \n"
             + "\n"
-            + "Aigis is ready to help!\n";
+            + "Aigis is ready to help!\n"
+            + "Awaiting commands...\n";
 
     private static final String CLOSING = " ----------------------------------------------------\n"
             + "Tasks completed. See you again soon!\n"
