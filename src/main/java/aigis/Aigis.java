@@ -74,9 +74,48 @@ public class Aigis {
                     }
                 } else if (taskCount >= tasks.length) {
                     System.out.println("The task list is full.");
-                } else {
-                    System.out.println("New objective: " + input);
-                    tasks[taskCount] = new Task(input);
+                } else if (input.startsWith("todo ")) {
+                    String todo = input.substring(5).trim();
+                    if (todo.isEmpty()) {
+                        System.out.println("Please provide a task description.");
+                        continue;
+                    }
+                    System.out.println("New objective: " + todo);
+                    tasks[taskCount] = new Todo(todo);
+                    taskCount++;
+                } else if (input.startsWith("deadline ")) {
+                    String deadlineInput = input.substring(9);
+                    int byIndex = deadlineInput.indexOf("/by");
+                    if (byIndex <= 0) {
+                        System.out.println("Please use: deadline <description> /by <date>");
+                        continue;
+                    }
+                    String deadline = deadlineInput.substring(0, byIndex).trim();
+                    String due = deadlineInput.substring(byIndex + 3).trim();
+                    if (deadline.isEmpty() || due.isEmpty()) {
+                        System.out.println("Please use: deadline <description> /by <date>");
+                        continue;
+                    }
+                    System.out.println("New objective: " + deadline + " ( by: " + due + " )");
+                    tasks[taskCount] = new Deadline(deadline, due);
+                    taskCount++;
+                } else if (input.startsWith("event ")) {
+                    String eventInput = input.substring(6);
+                    int fromIndex = eventInput.indexOf("/from");
+                    int toIndex = eventInput.indexOf("/to");
+                    if (fromIndex <= 0 || toIndex <= fromIndex + 5) {
+                        System.out.println("Please use: event <description> /from <start> /to <end>");
+                        continue;
+                    }
+                    String event = eventInput.substring(0, fromIndex).trim();
+                    String from = eventInput.substring(fromIndex + 5, toIndex).trim();
+                    String till = eventInput.substring(toIndex + 3).trim();
+                    if (event.isEmpty() || from.isEmpty() || till.isEmpty()) {
+                        System.out.println("Please use: event <description> /from <start> /to <end>");
+                        continue;
+                    }
+                    System.out.println("New objective: " + event + "( from: " + from + " to: " + till + " )");
+                    tasks[taskCount] = new Event(event, from, till);
                     taskCount++;
                 }
             }
