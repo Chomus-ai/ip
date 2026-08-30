@@ -4,8 +4,10 @@ package aigis;
  * Represents an objective managed by Aigis.
  */
 public class Task {
-    protected String description;
-    protected boolean isDone;
+    /** The text describing this task. */
+    private final String description;
+    /** Whether this task has been completed. */
+    private boolean isDone;
 
     /**
      * Creates an unfinished task with the given description.
