@@ -44,7 +44,39 @@ __________________________________________________________
 
 ```
 
-## Test case 2: Manage a todo task
+## Test case 2: Handle an unknown command
+
+Aim: Verify that an unrecognized command receives an explicit response and does not create a task.
+
+Inputs:
+
+```text
+what
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+I don't understand that command.
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 3: Manage a todo task
 
 Aim: Verify adding a todo, listing it, marking it done, and unmarking it.
 
@@ -86,7 +118,7 @@ __________________________________________________________
 
 ```
 
-## Test case 3: Reject malformed deadline and event commands
+## Test case 4: Reject malformed deadline and event commands
 
 Aim: Verify that incomplete deadline and event commands are rejected without throwing an exception or adding a task.
 
@@ -126,7 +158,7 @@ __________________________________________________________
 
 ```
 
-## Test case 4: Add deadline and event tasks
+## Test case 5: Add deadline and event tasks
 
 Aim: Verify that deadline and event commands parse their fields and display them in a list.
 
@@ -163,7 +195,7 @@ __________________________________________________________
 
 ```
 
-## Test case 5: Reject invalid task numbers
+## Test case 6: Reject invalid task numbers
 
 Aim: Verify that invalid and out-of-range task numbers produce clear errors without changing the task list.
 

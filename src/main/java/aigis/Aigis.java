@@ -20,6 +20,7 @@ public class Aigis {
     private static final String TO_MARKER = "/to";
     private static final String DEADLINE_USAGE = "Please use: deadline <description> /by <date>";
     private static final String EVENT_USAGE = "Please use: event <description> /from <start> /to <end>";
+    private static final String UNKNOWN_COMMAND_MESSAGE = "I don't understand that command.";
 
     private static final String BANNER =
               "      __        __     _______   __      ________  \n" +
@@ -104,6 +105,7 @@ public class Aigis {
         if (input.startsWith(EVENT_PREFIX)) {
             return addEvent(input, tasks, taskCount);
         }
+        System.out.println(UNKNOWN_COMMAND_MESSAGE);
         return taskCount;
     }
 
