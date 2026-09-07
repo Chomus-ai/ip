@@ -1,4 +1,4 @@
-package aigis;
+package aigis.task;
 
 /**
  * Represents a task that occurs between a start and end time.

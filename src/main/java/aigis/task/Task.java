@@ -1,4 +1,4 @@
-package aigis;
+package aigis.task;
 
 /**
  * Represents an objective managed by Aigis.
