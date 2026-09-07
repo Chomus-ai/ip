@@ -13,10 +13,25 @@ public class Task {
      * Creates an unfinished task with the given description.
      *
      * @param description The text describing the task.
+     * @throws IllegalArgumentException If the description is null or blank.
      */
     public Task(String description) {
+        validateField(description, "Task description");
         this.description = description;
         this.isDone = false;
+    }
+
+    /**
+     * Validates a text field used to construct a task.
+     *
+     * @param value The value to validate.
+     * @param fieldName The name of the field used in the error message.
+     * @throws IllegalArgumentException If the value is null or blank.
+     */
+    protected static void validateField(String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " cannot be null or blank.");
+        }
     }
 
     /**

@@ -12,9 +12,11 @@ public class Deadline extends Task {
      *
      * @param description The text describing the task.
      * @param due The time by which the task should be completed.
+     * @throws IllegalArgumentException If the description or due date is null or blank.
      */
     public Deadline(String description, String due) {
         super(description);
+        validateField(due, "Deadline due date");
         this.due = due;
     }
 

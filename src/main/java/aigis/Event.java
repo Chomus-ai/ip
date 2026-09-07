@@ -15,9 +15,12 @@ public class Event extends Task {
      * @param description The text describing the task.
      * @param from The start time of the event.
      * @param till The end time of the event.
+     * @throws IllegalArgumentException If any argument is null or blank.
      */
     public Event(String description, String from, String till) {
         super(description);
+        validateField(from, "Event start time");
+        validateField(till, "Event end time");
         this.from = from;
         this.till = till;
     }
