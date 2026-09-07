@@ -1,4 +1,4 @@
-package aigis;
+package aigis.task;
 
 /**
  * Represents a task without a deadline or event time.

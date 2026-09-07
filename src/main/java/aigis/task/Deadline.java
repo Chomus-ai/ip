@@ -1,4 +1,4 @@
-package aigis;
+package aigis.task;
 
 /**
  * Represents a task that must be completed by a specified time.

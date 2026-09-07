@@ -2,6 +2,11 @@ package aigis;
 
 import java.util.Scanner;
 
+import aigis.task.Deadline;
+import aigis.task.Event;
+import aigis.task.Task;
+import aigis.task.Todo;
+
 /**
  * A simple command-line task manager.
  */
