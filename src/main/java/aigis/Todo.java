@@ -8,6 +8,7 @@ public class Todo extends Task {
      * Creates an unfinished todo task.
      *
      * @param description The text describing the task.
+     * @throws IllegalArgumentException If the description is null or blank.
      */
     public Todo(String description) {
         super(description);
