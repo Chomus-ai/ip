@@ -157,13 +157,15 @@ public class Aigis {
      */
     private static int addTodo(String input, Task[] tasks, int taskCount) {
         String todo = input.substring(TODO_PREFIX.length()).trim();
-        if (todo.isEmpty()) {
-            System.out.println("Please provide a task description.");
+        try {
+            Task newTask = new Todo(todo);
+            System.out.println("New objective: " + todo);
+            tasks[taskCount] = newTask;
+            return taskCount + 1;
+        } catch (IllegalArgumentException exception) {
+            System.out.println(exception.getMessage());
             return taskCount;
         }
-        System.out.println("New objective: " + todo);
-        tasks[taskCount] = new Todo(todo);
-        return taskCount + 1;
     }
 
     /**
@@ -187,9 +189,15 @@ public class Aigis {
             System.out.println(DEADLINE_USAGE);
             return taskCount;
         }
-        System.out.println("New objective: " + deadline + " ( by: " + due + " )");
-        tasks[taskCount] = new Deadline(deadline, due);
-        return taskCount + 1;
+        try {
+            Task newTask = new Deadline(deadline, due);
+            System.out.println("New objective: " + deadline + " ( by: " + due + " )");
+            tasks[taskCount] = newTask;
+            return taskCount + 1;
+        } catch (IllegalArgumentException exception) {
+            System.out.println(exception.getMessage());
+            return taskCount;
+        }
     }
 
     /**
@@ -215,10 +223,16 @@ public class Aigis {
             System.out.println(EVENT_USAGE);
             return taskCount;
         }
-        System.out.println("New objective: " + event
-                + "( from: " + from + " to: " + till + " )");
-        tasks[taskCount] = new Event(event, from, till);
-        return taskCount + 1;
+        try {
+            Task newTask = new Event(event, from, till);
+            System.out.println("New objective: " + event
+                    + "( from: " + from + " to: " + till + " )");
+            tasks[taskCount] = newTask;
+            return taskCount + 1;
+        } catch (IllegalArgumentException exception) {
+            System.out.println(exception.getMessage());
+            return taskCount;
+        }
     }
 
     /**

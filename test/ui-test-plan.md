@@ -44,6 +44,58 @@ __________________________________________________________
 
 ```
 
+## Test case 7: Reject empty fields without changing task count
+
+Aim: Verify that empty task fields are rejected and valid tasks remain correctly positioned after invalid commands.
+
+Inputs:
+
+```text
+list
+todo   
+todo valid todo
+list
+deadline /by Friday
+deadline submit report /by Friday
+list
+event /from 9am /to 10am
+event team meeting /from 9am /to 10am
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+Task description cannot be null or blank.
+New objective: valid todo
+1. [T] [ ] valid todo
+Please use: deadline <description> /by <date>
+New objective: submit report ( by: Friday )
+1. [T] [ ] valid todo
+2. [D] [ ] submit report ( by: Friday )
+Please use: event <description> /from <start> /to <end>
+New objective: team meeting( from: 9am to: 10am )
+1. [T] [ ] valid todo
+2. [D] [ ] submit report ( by: Friday )
+3. [E] [ ] team meeting( from: 9am to: 10am )
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
 ## Test case 2: Handle an unknown command
 
 Aim: Verify that an unrecognized command receives an explicit response and does not create a task.
@@ -227,6 +279,113 @@ New objective: task
 Please provide a valid task number.
 That task does not exist.
 1. [T] [ ] task
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 8: Preserve completion state after invalid status commands
+
+Aim: Verify that malformed and out-of-range mark commands do not alter valid task completion states or task counts.
+
+Inputs:
+
+```text
+todo first task
+mark 1
+mark 1 extra
+todo second task
+unmark 1
+mark 0
+list
+deadline submit report /by tomorrow
+mark 3
+unmark nope
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+New objective: first task
+Marked as done: [T] [X] first task
+Please provide a valid task number.
+New objective: second task
+Unmarked as done: [T] [ ] first task
+That task does not exist.
+1. [T] [ ] first task
+2. [T] [ ] second task
+New objective: submit report ( by: tomorrow )
+Marked as done: [D] [X] submit report ( by: tomorrow )
+Please provide a valid task number.
+1. [T] [ ] first task
+2. [T] [ ] second task
+3. [D] [X] submit report ( by: tomorrow )
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 9: Reject event markers in the wrong order
+
+Aim: Verify that reversed event markers are rejected without displacing valid tasks or altering completion state.
+
+Inputs:
+
+```text
+event planning /to 11am /from 10am
+deadline report /by
+todo retained task
+deadline submit report /by Friday
+event team meeting /from 10am /to 11am
+list
+mark 2
+event planning /to 11am /from 10am
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+Please use: event <description> /from <start> /to <end>
+Please use: deadline <description> /by <date>
+New objective: retained task
+New objective: submit report ( by: Friday )
+New objective: team meeting( from: 10am to: 11am )
+1. [T] [ ] retained task
+2. [D] [ ] submit report ( by: Friday )
+3. [E] [ ] team meeting( from: 10am to: 11am )
+Marked as done: [D] [X] submit report ( by: Friday )
+Please use: event <description> /from <start> /to <end>
+1. [T] [ ] retained task
+2. [D] [X] submit report ( by: Friday )
+3. [E] [ ] team meeting( from: 10am to: 11am )
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
