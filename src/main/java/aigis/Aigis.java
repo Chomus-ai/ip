@@ -1,5 +1,7 @@
 package aigis;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Scanner;
 
 import aigis.task.Deadline;
@@ -17,6 +19,7 @@ public class Aigis {
     private static final String BYE_COMMAND = "bye";
     private static final String MARK_PREFIX = "mark ";
     private static final String UNMARK_PREFIX = "unmark ";
+    private static final String DELETE_PREFIX = "delete ";
     private static final String TODO_PREFIX = "todo ";
     private static final String DEADLINE_PREFIX = "deadline ";
     private static final String EVENT_PREFIX = "event ";
@@ -28,16 +31,18 @@ public class Aigis {
     private static final String UNKNOWN_COMMAND_MESSAGE = "I don't understand that command.";
 
     private static final String BANNER =
-              "      __        __     _______   __      ________  \n" +
-              "     /\"\"\\      |\" \\   /\" _   \"| |\" \\    /\"       ) \n" +
-              "    /    \\     ||  | (: ( \\___) ||  |  (:   \\___/  \n" +
-              "   /' /\\  \\    |:  |  \\/ \\      |:  |   \\___  \\    \n" +
-              "  //  __'  \\   |.  |  //  \\ ___ |.  |    __/  \\\\   \n" +
-              " /   /  \\\\  \\  /\\  |\\(:   _(  _|/\\  |\\  /\" \\   :)  \n" +
-              "(___/    \\___)(__\\_|_)\\_______)(__\\_|_)(_______/   \n"
-            + "\n"
-            + "Aigis is ready to help!\n"
-            + "Awaiting commands...\n";
+            """
+                          __        __     _______   __      ________ \s
+                         /""\\      |" \\   /" _   "| |" \\    /"       )\s
+                        /    \\     ||  | (: ( \\___) ||  |  (:   \\___/ \s
+                       /' /\\  \\    |:  |  \\/ \\      |:  |   \\___  \\   \s
+                      //  __'  \\   |.  |  //  \\ ___ |.  |    __/  \\\\  \s
+                     /   /  \\\\  \\  /\\  |\\(:   _(  _|/\\  |\\  /" \\   :) \s
+                    (___/    \\___)(__\\_|_)\\_______)(__\\_|_)(_______/  \s
+                    
+                    Aigis is ready to help!
+                    Awaiting commands...
+                    """;
 
     private static final String CLOSING = " ----------------------------------------------------\n"
             + "Tasks completed. See you again soon!\n"
@@ -51,9 +56,8 @@ public class Aigis {
     public static void main(String[] args) {
         System.out.println(BANNER);
 
-        Task[] tasks = new Task[MAX_TASKS];
+        List<Task> tasks = new ArrayList<>();
         runCommandLoop(tasks);
-
         System.out.println(CLOSING);
     }
 
@@ -62,8 +66,7 @@ public class Aigis {
      *
      * @param tasks The task storage used by the command loop.
      */
-    private static void runCommandLoop(Task[] tasks) {
-        int taskCount = 0;
+    private static void runCommandLoop(List<Task> tasks) {
         try (Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
                 String input = scanner.nextLine();
@@ -71,58 +74,61 @@ public class Aigis {
                 if (input.equals(BYE_COMMAND)) {
                     break;
                 }
-                taskCount = processCommand(input, tasks, taskCount);
+                processCommand(input, tasks);
             }
         }
     }
 
     /**
-     * Processes one non-exit command and returns the updated task count.
+     * Processes one non-exit command.
      *
      * @param input The command entered by the user.
      * @param tasks The task storage used by the command.
-     * @param taskCount The number of tasks currently stored.
-     * @return The updated number of stored tasks.
      */
-    private static int processCommand(String input, Task[] tasks, int taskCount) {
+    private static void processCommand(String input, List<Task> tasks) {
         if (input.equals(LIST_COMMAND)) {
-            printTasks(tasks, taskCount);
-            return taskCount;
+            printTasks(tasks);
+            return;
         }
         if (input.startsWith(MARK_PREFIX)) {
-            updateTaskStatus(input, tasks, taskCount, MARK_PREFIX, true);
-            return taskCount;
+            updateTaskStatus(input, tasks, MARK_PREFIX, true);
+            return;
         }
         if (input.startsWith(UNMARK_PREFIX)) {
-            updateTaskStatus(input, tasks, taskCount, UNMARK_PREFIX, false);
-            return taskCount;
+            updateTaskStatus(input, tasks, UNMARK_PREFIX, false);
+            return;
         }
-        if (isTaskCreationCommand(input) && taskCount >= tasks.length) {
+        if (input.startsWith(DELETE_PREFIX)) {
+            deleteTask(input, tasks);
+            return;
+        }
+        if (isTaskCreationCommand(input) && tasks.size() >= MAX_TASKS) {
             System.out.println("The task list is full.");
-            return taskCount;
+            return;
         }
         if (input.startsWith(TODO_PREFIX)) {
-            return addTodo(input, tasks, taskCount);
+            addTodo(input, tasks);
+            return;
         }
         if (input.startsWith(DEADLINE_PREFIX)) {
-            return addDeadline(input, tasks, taskCount);
+            addDeadline(input, tasks);
+            return;
         }
         if (input.startsWith(EVENT_PREFIX)) {
-            return addEvent(input, tasks, taskCount);
+            addEvent(input, tasks);
+            return;
         }
         System.out.println(UNKNOWN_COMMAND_MESSAGE);
-        return taskCount;
     }
 
     /**
      * Prints every stored task with its one-based display number.
      *
      * @param tasks The task storage to display.
-     * @param taskCount The number of tasks to display.
      */
-    private static void printTasks(Task[] tasks, int taskCount) {
-        for (int i = 0; i < taskCount; i++) {
-            System.out.println(i + 1 + ". " + tasks[i]);
+    private static void printTasks(List<Task> tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            System.out.println(i + 1 + ". " + tasks.get(i));
         }
     }
 
@@ -131,22 +137,42 @@ public class Aigis {
      *
      * @param input The status command entered by the user.
      * @param tasks The task storage containing the target task.
-     * @param taskCount The number of tasks currently stored.
      * @param commandPrefix The prefix to remove before parsing the task number.
      * @param isDone The completion status to assign.
      */
-    private static void updateTaskStatus(String input, Task[] tasks, int taskCount,
-                                         String commandPrefix, boolean isDone) {
+    private static void updateTaskStatus(String input, List<Task> tasks, String commandPrefix,
+                                         boolean isDone) {
         String taskNumber = input.substring(commandPrefix.length()).trim();
         try {
             int taskIndex = Integer.parseInt(taskNumber) - 1;
-            if (taskIndex < 0 || taskIndex >= taskCount) {
+            if (taskIndex < 0 || taskIndex >= tasks.size()) {
                 System.out.println("That task does not exist.");
                 return;
             }
-            tasks[taskIndex].setDone(isDone);
+            tasks.get(taskIndex).setDone(isDone);
             String statusMessage = isDone ? "Marked as done: " : "Unmarked as done: ";
-            System.out.println(statusMessage + tasks[taskIndex]);
+            System.out.println(statusMessage + tasks.get(taskIndex));
+        } catch (NumberFormatException exception) {
+            System.out.println("Please provide a valid task number.");
+        }
+    }
+
+    /**
+     * Deletes a task selected by its one-based display number.
+     *
+     * @param input The delete command entered by the user.
+     * @param tasks The task storage from which to remove the target task.
+     */
+    private static void deleteTask(String input, List<Task> tasks) {
+        String taskNumber = input.substring(DELETE_PREFIX.length()).trim();
+        try {
+            int taskIndex = Integer.parseInt(taskNumber) - 1;
+            if (taskIndex < 0 || taskIndex >= tasks.size()) {
+                System.out.println("That task does not exist.");
+                return;
+            }
+            Task deletedTask = tasks.remove(taskIndex);
+            System.out.println("Deleted task: " + deletedTask);
         } catch (NumberFormatException exception) {
             System.out.println("Please provide a valid task number.");
         }
@@ -157,19 +183,15 @@ public class Aigis {
      *
      * @param input The todo command entered by the user.
      * @param tasks The task storage receiving the new task.
-     * @param taskCount The number of tasks currently stored.
-     * @return The updated number of stored tasks.
      */
-    private static int addTodo(String input, Task[] tasks, int taskCount) {
+    private static void addTodo(String input, List<Task> tasks) {
         String todo = input.substring(TODO_PREFIX.length()).trim();
         try {
             Task newTask = new Todo(todo);
             System.out.println("New objective: " + todo);
-            tasks[taskCount] = newTask;
-            return taskCount + 1;
+            tasks.add(newTask);
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
-            return taskCount;
         }
     }
 
@@ -178,30 +200,26 @@ public class Aigis {
      *
      * @param input The deadline command entered by the user.
      * @param tasks The task storage receiving the new task.
-     * @param taskCount The number of tasks currently stored.
-     * @return The updated number of stored tasks.
      */
-    private static int addDeadline(String input, Task[] tasks, int taskCount) {
+    private static void addDeadline(String input, List<Task> tasks) {
         String deadlineInput = input.substring(DEADLINE_PREFIX.length());
         int byIndex = deadlineInput.indexOf(BY_MARKER);
         if (byIndex <= 0) {
             System.out.println(DEADLINE_USAGE);
-            return taskCount;
+            return;
         }
         String deadline = deadlineInput.substring(0, byIndex).trim();
         String due = deadlineInput.substring(byIndex + BY_MARKER.length()).trim();
         if (deadline.isEmpty() || due.isEmpty()) {
             System.out.println(DEADLINE_USAGE);
-            return taskCount;
+            return;
         }
         try {
             Task newTask = new Deadline(deadline, due);
             System.out.println("New objective: " + deadline + " ( by: " + due + " )");
-            tasks[taskCount] = newTask;
-            return taskCount + 1;
+            tasks.add(newTask);
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
-            return taskCount;
         }
     }
 
@@ -210,33 +228,29 @@ public class Aigis {
      *
      * @param input The event command entered by the user.
      * @param tasks The task storage receiving the new task.
-     * @param taskCount The number of tasks currently stored.
-     * @return The updated number of stored tasks.
      */
-    private static int addEvent(String input, Task[] tasks, int taskCount) {
+    private static void addEvent(String input, List<Task> tasks) {
         String eventInput = input.substring(EVENT_PREFIX.length());
         int fromIndex = eventInput.indexOf(FROM_MARKER);
         int toIndex = eventInput.indexOf(TO_MARKER);
         if (fromIndex <= 0 || toIndex <= fromIndex + FROM_MARKER.length()) {
             System.out.println(EVENT_USAGE);
-            return taskCount;
+            return;
         }
         String event = eventInput.substring(0, fromIndex).trim();
         String from = eventInput.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
         String till = eventInput.substring(toIndex + TO_MARKER.length()).trim();
         if (event.isEmpty() || from.isEmpty() || till.isEmpty()) {
             System.out.println(EVENT_USAGE);
-            return taskCount;
+            return;
         }
         try {
             Task newTask = new Event(event, from, till);
             System.out.println("New objective: " + event
                     + "( from: " + from + " to: " + till + " )");
-            tasks[taskCount] = newTask;
-            return taskCount + 1;
+            tasks.add(newTask);
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
-            return taskCount;
         }
     }
 
