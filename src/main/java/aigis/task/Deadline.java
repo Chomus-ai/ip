@@ -21,6 +21,16 @@ public class Deadline extends Task {
     }
 
     @Override
+    protected String getStorageType() {
+        return "D";
+    }
+
+    @Override
+    protected String getStorageDetails() {
+        return getDescription() + "  (" + due + ")";
+    }
+
+    @Override
     public String toString() {
         return "[D] " + super.toString() + " ( by: " + due + " )";
     }

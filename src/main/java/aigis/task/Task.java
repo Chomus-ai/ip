@@ -32,6 +32,9 @@ public class Task {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(fieldName + " cannot be null or blank.");
         }
+        if (value.indexOf('\n') >= 0 || value.indexOf('\r') >= 0) {
+            throw new IllegalArgumentException(fieldName + " cannot contain line breaks.");
+        }
     }
 
     /**
@@ -53,12 +56,48 @@ public class Task {
     }
 
     /**
+     * Returns whether this task has been completed.
+     *
+     * @return {@code true} if this task is complete.
+     */
+    public boolean isDone() {
+        return isDone;
+    }
+
+    /**
      * Sets whether this task is complete.
      *
      * @param isDone The new completion state.
      */
     public void setDone(boolean isDone) {
         this.isDone = isDone;
+    }
+
+    /**
+     * Returns this task in the format used by the data file.
+     *
+     * @return The serialized form of this task.
+     */
+    public String toStorageString() {
+        return getStorageType() + " / " + (isDone ? "1" : "0") + " / " + getStorageDetails();
+    }
+
+    /**
+     * Returns the type marker written before a task in the data file.
+     *
+     * @return The task type marker.
+     */
+    protected String getStorageType() {
+        return "Task";
+    }
+
+    /**
+     * Returns the task details written after the status in the data file.
+     *
+     * @return The task details.
+     */
+    protected String getStorageDetails() {
+        return description;
     }
 
     /**

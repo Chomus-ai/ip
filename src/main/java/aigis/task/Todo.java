@@ -15,6 +15,11 @@ public class Todo extends Task {
     }
 
     @Override
+    protected String getStorageType() {
+        return "T";
+    }
+
+    @Override
     public String toString() {
         return "[T] " + super.toString();
     }

@@ -26,6 +26,16 @@ public class Event extends Task {
     }
 
     @Override
+    protected String getStorageType() {
+        return "E";
+    }
+
+    @Override
+    protected String getStorageDetails() {
+        return getDescription() + " (" + from + " " + till + ")";
+    }
+
+    @Override
     public String toString() {
         return "[E] " + super.toString() + "( from: " + from + " to: " + till + " )";
     }

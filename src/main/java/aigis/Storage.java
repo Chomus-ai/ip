@@ -1,0 +1,219 @@
+package aigis;
+
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.AtomicMoveNotSupportedException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import aigis.task.Deadline;
+import aigis.task.Event;
+import aigis.task.Task;
+import aigis.task.Todo;
+
+/**
+ * Handles saving and loading Aigis tasks from the local data file.
+ */
+public final class Storage {
+    private static final Path DATA_DIRECTORY = Path.of("data");
+    private static final Path DATA_FILE = DATA_DIRECTORY.resolve("aigis.txt");
+    private static final String RECORD_SEPARATOR = " / ";
+
+    private Storage() {
+        // Prevent instantiation of this utility class.
+    }
+
+    /**
+     * Saves the current tasks, replacing the previous contents of the data file.
+     *
+     * @param tasks The task storage to save.
+     * @param taskCount The number of valid tasks in {@code tasks}.
+     */
+    public static void save(Task[] tasks, int taskCount) {
+        if (tasks == null) {
+            reportStorageError("Could not save tasks: task storage is null.");
+            return;
+        }
+
+        if (taskCount < 0 || taskCount > tasks.length) {
+            reportStorageError("Could not save tasks: task count is outside the task storage.");
+            return;
+        }
+        List<String> records = new ArrayList<>();
+        for (int i = 0; i < taskCount; i++) {
+            if (tasks[i] == null) {
+                reportStorageError("Could not save tasks: task " + (i + 1) + " is null.");
+                return;
+            }
+            String record = tasks[i].toStorageString();
+            if (record == null || record.isBlank() || record.indexOf('\n') >= 0
+                    || record.indexOf('\r') >= 0) {
+                reportStorageError("Could not save tasks: task " + (i + 1)
+                        + " has invalid storage data.");
+                return;
+            }
+            records.add(record);
+        }
+
+        Path temporaryFile = null;
+        try {
+            Files.createDirectories(DATA_DIRECTORY);
+            temporaryFile = Files.createTempFile(DATA_DIRECTORY, "aigis-", ".tmp");
+            try (BufferedWriter writer = Files.newBufferedWriter(temporaryFile,
+                    StandardCharsets.UTF_8)) {
+                for (String record : records) {
+                    writer.write(record);
+                    writer.newLine();
+                }
+            }
+            try {
+                Files.move(temporaryFile, DATA_FILE,
+                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+            } catch (AtomicMoveNotSupportedException exception) {
+                Files.move(temporaryFile, DATA_FILE, StandardCopyOption.REPLACE_EXISTING);
+            }
+        } catch (IOException exception) {
+            reportStorageError("Could not save tasks: " + exception.getMessage());
+        } catch (SecurityException exception) {
+            reportStorageError("Could not save tasks: access to the data file was denied.");
+        } finally {
+            if (temporaryFile != null) {
+                try {
+                    Files.deleteIfExists(temporaryFile);
+                } catch (IOException | SecurityException exception) {
+                    // The completed save is still usable even if temporary-file cleanup fails.
+                }
+            }
+        }
+    }
+
+    /**
+     * Loads saved tasks into the supplied task storage.
+     *
+     * @param tasks The task storage that receives the loaded tasks.
+     * @return The number of tasks loaded successfully.
+     */
+    public static int load(Task[] tasks) {
+        if (tasks == null) {
+            reportStorageError("Could not load tasks: task storage is null.");
+            return 0;
+        }
+        Arrays.fill(tasks, null);
+
+        try {
+            if (!Files.exists(DATA_FILE)) {
+                return 0;
+            }
+            if (!Files.isRegularFile(DATA_FILE)) {
+                reportStorageError("Could not load tasks: the data path is not a file.");
+                return 0;
+            }
+        } catch (SecurityException exception) {
+            reportStorageError("Could not load tasks: access to the data file was denied.");
+            return 0;
+        }
+
+        int taskCount = 0;
+        try (BufferedReader reader = Files.newBufferedReader(DATA_FILE, StandardCharsets.UTF_8)) {
+            String line;
+            while (taskCount < tasks.length && (line = reader.readLine()) != null) {
+                Task task = parseTask(line);
+                if (task != null) {
+                    tasks[taskCount] = task;
+                    taskCount++;
+                }
+            }
+        } catch (IOException exception) {
+            reportStorageError("Could not load tasks: " + exception.getMessage());
+        } catch (SecurityException exception) {
+            reportStorageError("Could not load tasks: access to the data file was denied.");
+        }
+        return taskCount;
+    }
+
+    /**
+     * Parses one serialized task line.
+     *
+     * @param line The line read from the data file.
+     * @return The parsed task, or {@code null} if the line is malformed.
+     */
+    private static Task parseTask(String line) {
+        if (line == null || line.isBlank()) {
+            return null;
+        }
+
+        if (line.charAt(0) == '\ufeff') {
+            line = line.substring(1);
+        }
+
+        int firstSeparator = line.indexOf(RECORD_SEPARATOR);
+        int secondSeparator = firstSeparator < 0
+                ? -1 : line.indexOf(RECORD_SEPARATOR, firstSeparator + RECORD_SEPARATOR.length());
+        if (firstSeparator <= 0 || secondSeparator <= firstSeparator + RECORD_SEPARATOR.length()) {
+            return null;
+        }
+
+        String type = line.substring(0, firstSeparator).trim();
+        String status = line.substring(firstSeparator + RECORD_SEPARATOR.length(), secondSeparator).trim();
+        String details = line.substring(secondSeparator + RECORD_SEPARATOR.length()).trim();
+        if ((!status.equals("0") && !status.equals("1")) || details.isEmpty()) {
+            return null;
+        }
+
+        try {
+            Task task = createTask(type, details);
+            task.setDone(status.equals("1"));
+            return task;
+        } catch (IllegalArgumentException exception) {
+            return null;
+        }
+    }
+
+    /**
+     * Creates a task from its serialized type and details.
+     *
+     * @param type The serialized task type.
+     * @param details The serialized task details.
+     * @return The created task.
+     * @throws IllegalArgumentException If the serialized details are malformed.
+     */
+    private static Task createTask(String type, String details) {
+        if (type.equals("T")) {
+            return new Todo(details);
+        }
+        if (type.equals("Task")) {
+            return new Task(details);
+        }
+        int openingParenthesis = details.lastIndexOf('(');
+        if (openingParenthesis <= 0 || !details.endsWith(")")) {
+            throw new IllegalArgumentException("Malformed task details.");
+        }
+
+        String description = details.substring(0, openingParenthesis).trim();
+        String timing = details.substring(openingParenthesis + 1, details.length() - 1).trim();
+        if (type.equals("D")) {
+            return new Deadline(description, timing);
+        }
+        if (type.equals("E")) {
+            int separator = timing.lastIndexOf(' ');
+            if (separator <= 0 || separator == timing.length() - 1) {
+                throw new IllegalArgumentException("Malformed event details.");
+            }
+            String from = timing.substring(0, separator).trim();
+            String till = timing.substring(separator + 1).trim();
+            return new Event(description, from, till);
+        }
+        throw new IllegalArgumentException("Unknown task type.");
+    }
+
+    /** Reports a storage problem without allowing it to terminate the command loop. */
+    private static void reportStorageError(String message) {
+        System.err.println(message);
+    }
+}
