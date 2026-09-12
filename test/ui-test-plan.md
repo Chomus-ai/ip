@@ -1,8 +1,9 @@
 # Aigis UI test plan
 
 This plan describes black-box console sessions for `aigis.Aigis`. Every input
-line is one command sent to a fresh process. Expected output is an exact
-stdout transcript, including the startup banner and closing message.
+line is one command sent to a fresh process with an isolated working directory.
+Expected output is an exact stdout transcript, including the startup banner and
+closing message.
 
 Run the plan from the project root with:
 
@@ -16,7 +17,7 @@ python .codex/skills/test-ui/scripts/run_ui_tests.py --plan test/ui-test-plan.md
 
 ## Test case 1: Exit immediately
 
-Aim: Verify that Aigis starts and closes cleanly when the user enters `bye`.
+Aim: Verify that Aigis starts with no data file and closes cleanly when the user enters `bye`.
 
 Inputs:
 
@@ -386,6 +387,172 @@ Please use: event <description> /from <start> /to <end>
 1. [T] [ ] retained task
 2. [D] [X] submit report ( by: Friday )
 3. [E] [ ] team meeting( from: 10am to: 11am )
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 12: Skip malformed saved records
+
+Aim: Verify that malformed records do not crash startup or prevent later valid records from loading.
+
+Initial data:
+
+```text
+T / 1 / read / book
+not a task record
+D / 2 / invalid status
+E / 0 / incomplete event (10am)
+X / 0 / unknown type
+D / 0 / send report  (Friday)
+```
+
+Inputs:
+
+```text
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+1. [T] [X] read / book
+2. [D] [ ] send report ( by: Friday )
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 13: Reject repeated task markers
+
+Aim: Verify that repeated deadline or event markers are rejected without adding malformed tasks.
+
+Inputs:
+
+```text
+deadline report /by Friday /by Monday
+event meeting /from 10am /to 11am /to 12pm
+todo retained task
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+Please use: deadline <description> /by <date>
+Please use: event <description> /from <start> /to <end>
+New objective: retained task
+1. [T] [ ] retained task
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 11: Load tasks from disk
+
+Aim: Verify that saved todos, deadlines, and events are loaded with their completion state.
+
+Initial data:
+
+```text
+T / 1 / read book
+D / 0 / return book  (June 6th)
+E / 0 / project meeting (Aug 6th 2-4pm)
+```
+
+Inputs:
+
+```text
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+1. [T] [X] read book
+2. [D] [ ] return book ( by: June 6th )
+3. [E] [ ] project meeting( from: Aug 6th to: 2-4pm )
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
+
+## Test case 10: Save changed tasks to disk
+
+Aim: Verify that successful additions and status changes are handled in one session for persistence.
+
+Inputs:
+
+```text
+todo read book
+deadline return book /by June 6th
+event project meeting /from Aug 6th /to 2-4pm
+mark 1
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+New objective: read book
+New objective: return book ( by: June 6th )
+New objective: project meeting( from: Aug 6th to: 2-4pm )
+Marked as done: [T] [X] read book
+1. [T] [X] read book
+2. [D] [ ] return book ( by: June 6th )
+3. [E] [ ] project meeting( from: Aug 6th to: 2-4pm )
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________

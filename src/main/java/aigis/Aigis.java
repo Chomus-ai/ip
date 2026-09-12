@@ -26,7 +26,6 @@ public class Aigis {
     private static final String DEADLINE_USAGE = "Please use: deadline <description> /by <date>";
     private static final String EVENT_USAGE = "Please use: event <description> /from <start> /to <end>";
     private static final String UNKNOWN_COMMAND_MESSAGE = "I don't understand that command.";
-
     private static final String BANNER =
               "      __        __     _______   __      ________  \n" +
               "     /\"\"\\      |\" \\   /\" _   \"| |\" \\    /\"       ) \n" +
@@ -52,7 +51,8 @@ public class Aigis {
         System.out.println(BANNER);
 
         Task[] tasks = new Task[MAX_TASKS];
-        runCommandLoop(tasks);
+        int taskCount = Storage.load(tasks);
+        runCommandLoop(tasks, taskCount);
 
         System.out.println(CLOSING);
     }
@@ -61,9 +61,9 @@ public class Aigis {
      * Reads and processes commands until the user exits or input is exhausted.
      *
      * @param tasks The task storage used by the command loop.
+     * @param taskCount The number of tasks loaded before the command loop starts.
      */
-    private static void runCommandLoop(Task[] tasks) {
-        int taskCount = 0;
+    private static void runCommandLoop(Task[] tasks, int taskCount) {
         try (Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
                 String input = scanner.nextLine();
@@ -85,6 +85,9 @@ public class Aigis {
      * @return The updated number of stored tasks.
      */
     private static int processCommand(String input, Task[] tasks, int taskCount) {
+        if (input == null) {
+            return taskCount;
+        }
         if (input.equals(LIST_COMMAND)) {
             printTasks(tasks, taskCount);
             return taskCount;
@@ -121,7 +124,14 @@ public class Aigis {
      * @param taskCount The number of tasks to display.
      */
     private static void printTasks(Task[] tasks, int taskCount) {
-        for (int i = 0; i < taskCount; i++) {
+        if (tasks == null) {
+            return;
+        }
+        int safeTaskCount = Math.min(taskCount, tasks.length);
+        for (int i = 0; i < safeTaskCount; i++) {
+            if (tasks[i] == null) {
+                continue;
+            }
             System.out.println(i + 1 + ". " + tasks[i]);
         }
     }
@@ -144,7 +154,15 @@ public class Aigis {
                 System.out.println("That task does not exist.");
                 return;
             }
+            if (tasks[taskIndex] == null) {
+                System.out.println("That task does not exist.");
+                return;
+            }
+            boolean hasStatusChanged = tasks[taskIndex].isDone() != isDone;
             tasks[taskIndex].setDone(isDone);
+            if (hasStatusChanged) {
+                Storage.save(tasks, taskCount);
+            }
             String statusMessage = isDone ? "Marked as done: " : "Unmarked as done: ";
             System.out.println(statusMessage + tasks[taskIndex]);
         } catch (NumberFormatException exception) {
@@ -166,6 +184,7 @@ public class Aigis {
             Task newTask = new Todo(todo);
             System.out.println("New objective: " + todo);
             tasks[taskCount] = newTask;
+            Storage.save(tasks, taskCount + 1);
             return taskCount + 1;
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
@@ -184,7 +203,9 @@ public class Aigis {
     private static int addDeadline(String input, Task[] tasks, int taskCount) {
         String deadlineInput = input.substring(DEADLINE_PREFIX.length());
         int byIndex = deadlineInput.indexOf(BY_MARKER);
-        if (byIndex <= 0) {
+        int secondByIndex = byIndex < 0
+                ? -1 : deadlineInput.indexOf(BY_MARKER, byIndex + BY_MARKER.length());
+        if (byIndex <= 0 || secondByIndex >= 0) {
             System.out.println(DEADLINE_USAGE);
             return taskCount;
         }
@@ -198,6 +219,7 @@ public class Aigis {
             Task newTask = new Deadline(deadline, due);
             System.out.println("New objective: " + deadline + " ( by: " + due + " )");
             tasks[taskCount] = newTask;
+            Storage.save(tasks, taskCount + 1);
             return taskCount + 1;
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
@@ -217,7 +239,12 @@ public class Aigis {
         String eventInput = input.substring(EVENT_PREFIX.length());
         int fromIndex = eventInput.indexOf(FROM_MARKER);
         int toIndex = eventInput.indexOf(TO_MARKER);
-        if (fromIndex <= 0 || toIndex <= fromIndex + FROM_MARKER.length()) {
+        int secondFromIndex = fromIndex < 0
+                ? -1 : eventInput.indexOf(FROM_MARKER, fromIndex + FROM_MARKER.length());
+        int secondToIndex = toIndex < 0
+                ? -1 : eventInput.indexOf(TO_MARKER, toIndex + TO_MARKER.length());
+        if (fromIndex <= 0 || toIndex <= fromIndex + FROM_MARKER.length()
+                || secondFromIndex >= 0 || secondToIndex >= 0) {
             System.out.println(EVENT_USAGE);
             return taskCount;
         }
@@ -233,6 +260,7 @@ public class Aigis {
             System.out.println("New objective: " + event
                     + "( from: " + from + " to: " + till + " )");
             tasks[taskCount] = newTask;
+            Storage.save(tasks, taskCount + 1);
             return taskCount + 1;
         } catch (IllegalArgumentException exception) {
             System.out.println(exception.getMessage());
@@ -247,8 +275,8 @@ public class Aigis {
      * @return {@code true} if the command creates a task.
      */
     private static boolean isTaskCreationCommand(String input) {
-        return input.startsWith(TODO_PREFIX)
+        return input != null && (input.startsWith(TODO_PREFIX)
                 || input.startsWith(DEADLINE_PREFIX)
-                || input.startsWith(EVENT_PREFIX);
+                || input.startsWith(EVENT_PREFIX));
     }
 }

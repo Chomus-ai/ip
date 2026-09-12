@@ -28,6 +28,7 @@ class TestCase:
     aim: str
     inputs: str
     expected_output: str
+    initial_data: str | None
 
 
 def normalize_newlines(value: str) -> str:
@@ -45,6 +46,16 @@ def extract_block(body: str, label: str, case_name: str) -> str:
     if match is None:
         raise ValueError(f"{case_name}: missing '{label}' fenced text block")
     return match.group("content")
+
+
+def extract_optional_block(body: str, label: str) -> str | None:
+    """Extract an optional labelled Markdown text block."""
+    pattern = re.compile(
+        rf"^{re.escape(label)}:\s*$\n```(?:text)?\s*\n(?P<content>.*?)^```\s*$",
+        re.MULTILINE | re.DOTALL,
+    )
+    match = pattern.search(body)
+    return match.group("content") if match is not None else None
 
 
 def parse_plan(plan_path: Path) -> tuple[str, list[TestCase]]:
@@ -66,6 +77,7 @@ def parse_plan(plan_path: Path) -> tuple[str, list[TestCase]]:
                 aim=aim_match.group(1),
                 inputs=extract_block(body, "Inputs", name),
                 expected_output=extract_block(body, "Expected output", name),
+                initial_data=extract_optional_block(body, "Initial data"),
             )
         )
 
@@ -126,13 +138,23 @@ def print_transcript(test_case: TestCase, actual: str) -> None:
     print(actual, end="" if actual.endswith("\n") else "\n")
 
 
-def run_case(java: str, classes_dir: Path, main_class: str, test_case: TestCase) -> int:
+def run_case(
+    java: str,
+    classes_dir: Path,
+    session_dir: Path,
+    main_class: str,
+    test_case: TestCase,
+) -> int:
     """Run one case, print its transcript, and return its process exit code."""
     expected = normalize_newlines(test_case.expected_output)
+    if test_case.initial_data is not None:
+        data_file = session_dir / "data" / "aigis.txt"
+        data_file.parent.mkdir()
+        data_file.write_text(test_case.initial_data, encoding="utf-8")
     try:
         result = subprocess.run(
             [java, "-cp", str(classes_dir), main_class],
-            cwd=classes_dir,
+            cwd=session_dir,
             input=test_case.inputs,
             capture_output=True,
             text=True,
@@ -181,8 +203,10 @@ def main() -> int:
         with tempfile.TemporaryDirectory(prefix="aigis-ui-test-") as temp_dir:
             classes_dir = Path(temp_dir)
             compile_sources(project_root, javac, classes_dir)
-            for test_case in cases:
-                if run_case(java, classes_dir, main_class, test_case) != 0:
+            for case_number, test_case in enumerate(cases, start=1):
+                session_dir = classes_dir / f"session-{case_number}"
+                session_dir.mkdir()
+                if run_case(java, classes_dir, session_dir, main_class, test_case) != 0:
                     print("\nTest session stopped after the first failure.")
                     return 1
     except (OSError, RuntimeError, ValueError, subprocess.TimeoutExpired) as error:
