@@ -56,8 +56,18 @@ public class Aigis {
     public static void main(String[] args) {
         System.out.println(BANNER);
 
-        List<Task> tasks = new ArrayList<>();
-        runCommandLoop(tasks);
+        Task[] savedTasks = new Task[MAX_TASKS];
+        int savedTaskCount = Storage.load(savedTasks);
+        List<Task> tasks = new ArrayList<>(savedTaskCount);
+        for (int i = 0; i < savedTaskCount; i++) {
+            tasks.add(savedTasks[i]);
+        }
+
+        try {
+            runCommandLoop(tasks);
+        } finally {
+            Storage.save(tasks.toArray(new Task[0]), tasks.size());
+        }
         System.out.println(CLOSING);
     }
 
