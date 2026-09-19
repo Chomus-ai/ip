@@ -100,7 +100,8 @@ public class Parser {
     private Command parseDeadline(String input) {
         String deadlineInput = input.substring(DEADLINE_PREFIX.length());
         int byIndex = deadlineInput.indexOf(BY_MARKER);
-        if (byIndex <= 0) {
+        int secondByIndex = deadlineInput.indexOf(BY_MARKER, byIndex + BY_MARKER.length());
+        if (byIndex <= 0 || secondByIndex >= 0) {
             return Command.withMessage(CommandType.ADD, DEADLINE_USAGE);
         }
         String description = deadlineInput.substring(0, byIndex).trim();
@@ -127,7 +128,10 @@ public class Parser {
         String eventInput = input.substring(EVENT_PREFIX.length());
         int fromIndex = eventInput.indexOf(FROM_MARKER);
         int toIndex = eventInput.indexOf(TO_MARKER);
-        if (fromIndex <= 0 || toIndex <= fromIndex + FROM_MARKER.length()) {
+        int secondFromIndex = eventInput.indexOf(FROM_MARKER, fromIndex + FROM_MARKER.length());
+        int secondToIndex = eventInput.indexOf(TO_MARKER, toIndex + TO_MARKER.length());
+        if (fromIndex <= 0 || toIndex <= fromIndex + FROM_MARKER.length()
+                || secondFromIndex >= 0 || secondToIndex >= 0) {
             return Command.withMessage(CommandType.ADD, EVENT_USAGE);
         }
         String description = eventInput.substring(0, fromIndex).trim();
