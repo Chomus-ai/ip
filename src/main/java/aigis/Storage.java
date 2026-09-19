@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
@@ -195,7 +194,7 @@ public final class Storage {
         String timing = details.substring(openingParenthesis + 1, details.length() - 1).trim();
         if (type.equals("D")) {
             try {
-                LocalDate dueDate = LocalDate.parse(timing, DateTimeFormatter.ISO_LOCAL_DATE);
+                LocalDate dueDate = DateFormats.parseDate(timing);
                 return new Deadline(description, dueDate);
             } catch (DateTimeParseException exception) {
                 throw new IllegalArgumentException("Malformed deadline date.", exception);

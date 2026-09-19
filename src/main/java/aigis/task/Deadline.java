@@ -1,17 +1,13 @@
 package aigis.task;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
-import java.util.Locale;
+
+import aigis.DateFormats;
 
 /**
  * Represents a task that must be completed by a specified time.
  */
 public class Deadline extends Task {
-    /** The format used when displaying a deadline to the user. */
-    private static final DateTimeFormatter DISPLAY_FORMAT =
-            DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
-
     /** The date by which this task should be completed. */
     private final LocalDate due;
 
@@ -51,6 +47,6 @@ public class Deadline extends Task {
 
     @Override
     public String toString() {
-        return "[D] " + super.toString() + " ( by: " + due.format(DISPLAY_FORMAT) + " )";
+        return "[D] " + super.toString() + " ( by: " + DateFormats.formatDate(due) + " )";
     }
 }

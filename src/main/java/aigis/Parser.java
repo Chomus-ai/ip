@@ -1,9 +1,7 @@
 package aigis;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.Locale;
 
 import aigis.task.Deadline;
 import aigis.task.Event;
@@ -28,10 +26,6 @@ public class Parser {
     private static final String DEADLINE_USAGE = "Please use: deadline <description> /by <date>";
     private static final String EVENT_USAGE = "Please use: event <description> /from <start> /to <end>";
     private static final String UNKNOWN_COMMAND_MESSAGE = "I don't understand that command.";
-    private static final DateTimeFormatter DATE_FORMAT = DateTimeFormatter.ISO_LOCAL_DATE;
-    private static final DateTimeFormatter DISPLAY_DATE_FORMAT =
-            DateTimeFormatter.ofPattern("MMM dd yyyy", Locale.ENGLISH);
-
     /**
      * Parses a line of user input into an executable command.
      *
@@ -124,10 +118,10 @@ public class Parser {
             return new AddCommand(null, DEADLINE_USAGE);
         }
         try {
-            LocalDate dueDate = LocalDate.parse(due, DATE_FORMAT);
+            LocalDate dueDate = DateFormats.parseDate(due);
             Task task = new Deadline(description, dueDate);
             String message = "New objective: " + description + " ( by: "
-                    + dueDate.format(DISPLAY_DATE_FORMAT) + " )";
+                    + DateFormats.formatDate(dueDate) + " )";
             return new AddCommand(task, message);
         } catch (DateTimeParseException exception) {
             return new AddCommand(null, DEADLINE_USAGE);
