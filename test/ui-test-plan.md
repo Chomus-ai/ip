@@ -707,3 +707,51 @@ Tasks completed. See you again soon!
 __________________________________________________________
 
 ```
+
+## Test case 14: Validate deadline calendar dates
+
+Aim: Verify that valid leap days are accepted while invalid leap days and months are rejected.
+
+Inputs:
+
+```text
+deadline leap day /by 2020-02-29
+deadline invalid leap day /by 2019-02-29
+deadline invalid month /by 2019-13-01
+list
+bye
+```
+
+Expected output:
+
+```text
+      __        __     _______   __      ________  
+     /""\      |" \   /" _   "| |" \    /"       ) 
+    /    \     ||  | (: ( \___) ||  |  (:   \___/  
+   /' /\  \    |:  |  \/ \      |:  |   \___  \    
+  //  __'  \   |.  |  //  \ ___ |.  |    __/  \\   
+ /   /  \\  \  /\  |\(:   _(  _|/\  |\  /" \   :)  
+(___/    \___)(__\_|_)\_______)(__\_|_)(_______/   
+
+Aigis is ready to help!
+Awaiting commands...
+
+_______
+New objective: leap day ( by: Feb 29 2020 )
+_______
+_______
+Please use: deadline <description> /by <date>
+_______
+_______
+Please use: deadline <description> /by <date>
+_______
+_______
+1. [D] [ ] leap day ( by: Feb 29 2020 )
+_______
+_______
+_______
+ ----------------------------------------------------
+Tasks completed. See you again soon!
+__________________________________________________________
+
+```
