@@ -1,6 +1,9 @@
 package aigis;
 
+import java.util.List;
 import java.util.Scanner;
+
+import aigis.task.Task;
 
 /**
  * Handles console input and output for Aigis.
@@ -83,6 +86,17 @@ public class Ui implements AutoCloseable {
      * @param tasks The tasks to display.
      */
     public void showTasks(TaskList tasks) {
+        for (int i = 0; i < tasks.size(); i++) {
+            showMessage(i + 1 + ". " + tasks.get(i));
+        }
+    }
+
+    /**
+     * Displays every task in a list with its one-based number.
+     *
+     * @param tasks The tasks to display.
+     */
+    public void showTasks(List<Task> tasks) {
         for (int i = 0; i < tasks.size(); i++) {
             showMessage(i + 1 + ". " + tasks.get(i));
         }

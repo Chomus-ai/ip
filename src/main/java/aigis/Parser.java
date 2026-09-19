@@ -13,6 +13,7 @@ import aigis.task.Todo;
  */
 public class Parser {
     private static final String LIST_COMMAND = "list";
+    private static final String FIND_PREFIX = "find ";
     private static final String BYE_COMMAND = "bye";
     private static final String MARK_PREFIX = "mark ";
     private static final String UNMARK_PREFIX = "unmark ";
@@ -39,6 +40,9 @@ public class Parser {
         if (input.equals(LIST_COMMAND)) {
             return new ListCommand();
         }
+        if (input.startsWith(FIND_PREFIX)) {
+            return parseFind(input);
+        }
         if (input.startsWith(MARK_PREFIX)) {
             return parseTaskNumber(input, MARK_PREFIX);
         }
@@ -58,6 +62,20 @@ public class Parser {
             return parseEvent(input);
         }
         return new MessageCommand(UNKNOWN_COMMAND_MESSAGE);
+    }
+
+    /**
+     * Parses a find command and extracts its search keyword.
+     *
+     * @param input The complete find command.
+     * @return The parsed find command or an invalid command with an explanation.
+     */
+    private Command parseFind(String input) {
+        String keyword = input.substring(FIND_PREFIX.length()).trim();
+        if (keyword.isEmpty()) {
+            return new MessageCommand("Please provide a search keyword.");
+        }
+        return new FindCommand(keyword);
     }
 
     /**
