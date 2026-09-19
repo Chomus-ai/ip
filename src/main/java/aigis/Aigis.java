@@ -1,7 +1,5 @@
 package aigis;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Scanner;
 
 import aigis.task.Deadline;
@@ -13,8 +11,6 @@ import aigis.task.Todo;
  * A simple command-line task manager.
  */
 public class Aigis {
-    /** Maximum number of tasks that Aigis can store. */
-    private static final int MAX_TASKS = 100;
     private static final String LIST_COMMAND = "list";
     private static final String BYE_COMMAND = "bye";
     private static final String MARK_PREFIX = "mark ";
@@ -56,17 +52,14 @@ public class Aigis {
     public static void main(String[] args) {
         System.out.println(BANNER);
 
-        Task[] savedTasks = new Task[MAX_TASKS];
+        Task[] savedTasks = new Task[TaskList.MAX_TASKS];
         int savedTaskCount = Storage.load(savedTasks);
-        List<Task> tasks = new ArrayList<>(savedTaskCount);
-        for (int i = 0; i < savedTaskCount; i++) {
-            tasks.add(savedTasks[i]);
-        }
+        TaskList tasks = new TaskList(savedTasks, savedTaskCount);
 
         try {
             runCommandLoop(tasks);
         } finally {
-            Storage.save(tasks.toArray(new Task[0]), tasks.size());
+            Storage.save(tasks.toArray(), tasks.size());
         }
         System.out.println(CLOSING);
     }
@@ -76,7 +69,7 @@ public class Aigis {
      *
      * @param tasks The task storage used by the command loop.
      */
-    private static void runCommandLoop(List<Task> tasks) {
+    private static void runCommandLoop(TaskList tasks) {
         try (Scanner scanner = new Scanner(System.in)) {
             while (scanner.hasNextLine()) {
                 String input = scanner.nextLine();
@@ -95,7 +88,7 @@ public class Aigis {
      * @param input The command entered by the user.
      * @param tasks The task storage used by the command.
      */
-    private static void processCommand(String input, List<Task> tasks) {
+    private static void processCommand(String input, TaskList tasks) {
         if (input.equals(LIST_COMMAND)) {
             printTasks(tasks);
             return;
@@ -112,7 +105,7 @@ public class Aigis {
             deleteTask(input, tasks);
             return;
         }
-        if (isTaskCreationCommand(input) && tasks.size() >= MAX_TASKS) {
+        if (isTaskCreationCommand(input) && tasks.isFull()) {
             System.out.println("The task list is full.");
             return;
         }
@@ -136,7 +129,7 @@ public class Aigis {
      *
      * @param tasks The task storage to display.
      */
-    private static void printTasks(List<Task> tasks) {
+    private static void printTasks(TaskList tasks) {
         for (int i = 0; i < tasks.size(); i++) {
             System.out.println(i + 1 + ". " + tasks.get(i));
         }
@@ -150,7 +143,7 @@ public class Aigis {
      * @param commandPrefix The prefix to remove before parsing the task number.
      * @param isDone The completion status to assign.
      */
-    private static void updateTaskStatus(String input, List<Task> tasks, String commandPrefix,
+    private static void updateTaskStatus(String input, TaskList tasks, String commandPrefix,
                                          boolean isDone) {
         String taskNumber = input.substring(commandPrefix.length()).trim();
         try {
@@ -173,7 +166,7 @@ public class Aigis {
      * @param input The delete command entered by the user.
      * @param tasks The task storage from which to remove the target task.
      */
-    private static void deleteTask(String input, List<Task> tasks) {
+    private static void deleteTask(String input, TaskList tasks) {
         String taskNumber = input.substring(DELETE_PREFIX.length()).trim();
         try {
             int taskIndex = Integer.parseInt(taskNumber) - 1;
@@ -194,7 +187,7 @@ public class Aigis {
      * @param input The todo command entered by the user.
      * @param tasks The task storage receiving the new task.
      */
-    private static void addTodo(String input, List<Task> tasks) {
+    private static void addTodo(String input, TaskList tasks) {
         String todo = input.substring(TODO_PREFIX.length()).trim();
         try {
             Task newTask = new Todo(todo);
@@ -211,7 +204,7 @@ public class Aigis {
      * @param input The deadline command entered by the user.
      * @param tasks The task storage receiving the new task.
      */
-    private static void addDeadline(String input, List<Task> tasks) {
+    private static void addDeadline(String input, TaskList tasks) {
         String deadlineInput = input.substring(DEADLINE_PREFIX.length());
         int byIndex = deadlineInput.indexOf(BY_MARKER);
         if (byIndex <= 0) {
@@ -239,7 +232,7 @@ public class Aigis {
      * @param input The event command entered by the user.
      * @param tasks The task storage receiving the new task.
      */
-    private static void addEvent(String input, List<Task> tasks) {
+    private static void addEvent(String input, TaskList tasks) {
         String eventInput = input.substring(EVENT_PREFIX.length());
         int fromIndex = eventInput.indexOf(FROM_MARKER);
         int toIndex = eventInput.indexOf(TO_MARKER);
