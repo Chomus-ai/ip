@@ -40,46 +40,14 @@ public final class Storage {
      * @param tasks The task list to save.
      */
     public void save(TaskList tasks) {
-        if (tasks == null) {
-            reportStorageError("Could not save tasks: task storage is null.");
+        List<String> records = serializeTasks(tasks);
+        if (records == null) {
             return;
         }
-
-        List<String> records = new ArrayList<>();
-        for (int i = 0; i < tasks.size(); i++) {
-            Task task = tasks.get(i);
-            if (task == null) {
-                reportStorageError("Could not save tasks: task " + (i + 1) + " is null.");
-                return;
-            }
-            String record = task.toStorageString();
-            if (record == null || record.isBlank() || record.indexOf('\n') >= 0
-                    || record.indexOf('\r') >= 0) {
-                reportStorageError("Could not save tasks: task " + (i + 1)
-                        + " has invalid storage data.");
-                return;
-            }
-            records.add(record);
-        }
-
         Path temporaryFile = null;
         try {
-            Path dataDirectory = dataFile.getParent();
-            Files.createDirectories(dataDirectory);
-            temporaryFile = Files.createTempFile(dataDirectory, "aigis-", ".tmp");
-            try (BufferedWriter writer = Files.newBufferedWriter(temporaryFile,
-                    StandardCharsets.UTF_8)) {
-                for (String record : records) {
-                    writer.write(record);
-                    writer.newLine();
-                }
-            }
-            try {
-                Files.move(temporaryFile, dataFile,
-                        StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
-            } catch (AtomicMoveNotSupportedException exception) {
-                Files.move(temporaryFile, dataFile, StandardCopyOption.REPLACE_EXISTING);
-            }
+            temporaryFile = writeTemporaryFile(records);
+            replaceDataFile(temporaryFile);
         } catch (IOException exception) {
             reportStorageError("Could not save tasks: " + exception.getMessage());
         } catch (SecurityException exception) {
@@ -92,6 +60,73 @@ public final class Storage {
                     // The completed save is still usable even if temporary-file cleanup fails.
                 }
             }
+        }
+    }
+
+    /**
+     * Converts every task into a validated storage record.
+     *
+     * @param tasks The task list to serialize.
+     * @return The serialized records, or {@code null} when a task is invalid.
+     */
+    private static List<String> serializeTasks(TaskList tasks) {
+        if (tasks == null) {
+            reportStorageError("Could not save tasks: task storage is null.");
+            return null;
+        }
+
+        List<String> records = new ArrayList<>();
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            if (task == null) {
+                reportStorageError("Could not save tasks: task " + (i + 1) + " is null.");
+                return null;
+            }
+            String record = task.toStorageString();
+            if (record == null || record.isBlank() || record.indexOf('\n') >= 0
+                    || record.indexOf('\r') >= 0) {
+                reportStorageError("Could not save tasks: task " + (i + 1)
+                        + " has invalid storage data.");
+                return null;
+            }
+            records.add(record);
+        }
+        return records;
+    }
+
+    /**
+     * Writes serialized task records to a temporary file in the data directory.
+     *
+     * @param records The records to write.
+     * @return The temporary file containing the records.
+     * @throws IOException If the directory or temporary file cannot be created.
+     */
+    private Path writeTemporaryFile(List<String> records) throws IOException {
+        Path dataDirectory = dataFile.getParent();
+        Files.createDirectories(dataDirectory);
+        Path temporaryFile = Files.createTempFile(dataDirectory, "aigis-", ".tmp");
+        try (BufferedWriter writer = Files.newBufferedWriter(temporaryFile,
+                StandardCharsets.UTF_8)) {
+            for (String record : records) {
+                writer.write(record);
+                writer.newLine();
+            }
+        }
+        return temporaryFile;
+    }
+
+    /**
+     * Replaces the data file with the completed temporary file.
+     *
+     * @param temporaryFile The temporary file to move into place.
+     * @throws IOException If the data file cannot be replaced.
+     */
+    private void replaceDataFile(Path temporaryFile) throws IOException {
+        try {
+            Files.move(temporaryFile, dataFile,
+                    StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
+        } catch (AtomicMoveNotSupportedException exception) {
+            Files.move(temporaryFile, dataFile, StandardCopyOption.REPLACE_EXISTING);
         }
     }
 
