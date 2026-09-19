@@ -12,18 +12,19 @@ public class Aigis {
      * @param args Command-line arguments, which are not used.
      */
     public static void main(String[] args) {
+        Storage storage = new Storage("data/aigis.txt");
         try (Ui ui = new Ui()) {
             ui.showWelcome();
 
             Task[] savedTasks = new Task[TaskList.MAX_TASKS];
-            int savedTaskCount = Storage.load(savedTasks);
+            int savedTaskCount = storage.load(savedTasks);
             TaskList tasks = new TaskList(savedTasks, savedTaskCount);
             Parser parser = new Parser();
 
             try {
                 runCommandLoop(tasks, ui, parser);
             } finally {
-                Storage.save(tasks.toArray(), tasks.size());
+                storage.save(tasks.toArray(), tasks.size());
             }
             ui.showGoodbye();
         }

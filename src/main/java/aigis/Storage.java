@@ -21,12 +21,16 @@ import aigis.task.Todo;
  * Handles saving and loading Aigis tasks from the local data file.
  */
 public final class Storage {
-    private static final Path DATA_DIRECTORY = Path.of("data");
-    private static final Path DATA_FILE = DATA_DIRECTORY.resolve("aigis.txt");
     private static final String RECORD_SEPARATOR = " / ";
+    private final Path dataFile;
 
-    private Storage() {
-        // Prevent instantiation of this utility class.
+    /**
+     * Creates storage backed by the specified file path.
+     *
+     * @param filePath The path of the file used to save and load tasks.
+     */
+    public Storage(String filePath) {
+        dataFile = Path.of(filePath).toAbsolutePath().normalize();
     }
 
     /**
@@ -35,7 +39,7 @@ public final class Storage {
      * @param tasks The task storage to save.
      * @param taskCount The number of valid tasks in {@code tasks}.
      */
-    public static void save(Task[] tasks, int taskCount) {
+    public void save(Task[] tasks, int taskCount) {
         if (tasks == null) {
             reportStorageError("Could not save tasks: task storage is null.");
             return;
@@ -63,8 +67,9 @@ public final class Storage {
 
         Path temporaryFile = null;
         try {
-            Files.createDirectories(DATA_DIRECTORY);
-            temporaryFile = Files.createTempFile(DATA_DIRECTORY, "aigis-", ".tmp");
+            Path dataDirectory = dataFile.getParent();
+            Files.createDirectories(dataDirectory);
+            temporaryFile = Files.createTempFile(dataDirectory, "aigis-", ".tmp");
             try (BufferedWriter writer = Files.newBufferedWriter(temporaryFile,
                     StandardCharsets.UTF_8)) {
                 for (String record : records) {
@@ -73,10 +78,10 @@ public final class Storage {
                 }
             }
             try {
-                Files.move(temporaryFile, DATA_FILE,
+                Files.move(temporaryFile, dataFile,
                         StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
             } catch (AtomicMoveNotSupportedException exception) {
-                Files.move(temporaryFile, DATA_FILE, StandardCopyOption.REPLACE_EXISTING);
+                Files.move(temporaryFile, dataFile, StandardCopyOption.REPLACE_EXISTING);
             }
         } catch (IOException exception) {
             reportStorageError("Could not save tasks: " + exception.getMessage());
@@ -99,7 +104,7 @@ public final class Storage {
      * @param tasks The task storage that receives the loaded tasks.
      * @return The number of tasks loaded successfully.
      */
-    public static int load(Task[] tasks) {
+    public int load(Task[] tasks) {
         if (tasks == null) {
             reportStorageError("Could not load tasks: task storage is null.");
             return 0;
@@ -107,10 +112,10 @@ public final class Storage {
         Arrays.fill(tasks, null);
 
         try {
-            if (!Files.exists(DATA_FILE)) {
+            if (!Files.exists(dataFile)) {
                 return 0;
             }
-            if (!Files.isRegularFile(DATA_FILE)) {
+            if (!Files.isRegularFile(dataFile)) {
                 reportStorageError("Could not load tasks: the data path is not a file.");
                 return 0;
             }
@@ -120,7 +125,7 @@ public final class Storage {
         }
 
         int taskCount = 0;
-        try (BufferedReader reader = Files.newBufferedReader(DATA_FILE, StandardCharsets.UTF_8)) {
+        try (BufferedReader reader = Files.newBufferedReader(dataFile, StandardCharsets.UTF_8)) {
             String line;
             while (taskCount < tasks.length && (line = reader.readLine()) != null) {
                 Task task = parseTask(line);
