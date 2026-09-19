@@ -1,7 +1,5 @@
 package aigis;
 
-import aigis.task.Task;
-
 /**
  * A simple command-line task manager.
  */
@@ -71,90 +69,11 @@ public class Aigis implements AutoCloseable {
     private void runCommandLoop() {
         String input;
         while ((input = ui.readCommand()) != null) {
-            Parser.Command command = parser.parse(input);
-            if (command.getType() == Parser.CommandType.EXIT) {
+            Command command = parser.parse(input);
+            command.execute(tasks, ui, storage);
+            if (command.isExit()) {
                 break;
             }
-            processCommand(command);
         }
-    }
-
-    /**
-     * Executes one parsed command.
-     *
-     * @param command The parsed command to execute.
-     */
-    private void processCommand(Parser.Command command) {
-        switch (command.getType()) {
-        case LIST:
-            ui.showTasks(tasks);
-            break;
-        case MARK:
-        case UNMARK:
-            updateTaskStatus(command);
-            break;
-        case DELETE:
-            deleteTask(command);
-            break;
-        case ADD:
-            addTask(command);
-            break;
-        case INVALID:
-        case UNKNOWN:
-            ui.showMessage(command.getMessage());
-            break;
-        default:
-            break;
-        }
-    }
-
-    /**
-     * Updates a task's completion status based on a mark or unmark command.
-     *
-     * @param command The parsed status command.
-     */
-    private void updateTaskStatus(Parser.Command command) {
-        int taskIndex = command.getTaskNumber() - 1;
-        if (taskIndex < 0 || taskIndex >= tasks.size()) {
-            ui.showMessage("That task does not exist.");
-            return;
-        }
-        boolean isDone = command.getType() == Parser.CommandType.MARK;
-        tasks.get(taskIndex).setDone(isDone);
-        String statusMessage = isDone ? "Marked as done: " : "Unmarked as done: ";
-        ui.showMessage(statusMessage + tasks.get(taskIndex));
-    }
-
-    /**
-     * Deletes a task selected by its one-based display number.
-     *
-     * @param command The parsed delete command.
-     */
-    private void deleteTask(Parser.Command command) {
-        int taskIndex = command.getTaskNumber() - 1;
-        if (taskIndex < 0 || taskIndex >= tasks.size()) {
-            ui.showMessage("That task does not exist.");
-            return;
-        }
-        Task deletedTask = tasks.remove(taskIndex);
-        ui.showMessage("Deleted task: " + deletedTask);
-    }
-
-    /**
-     * Adds a task represented by a parsed add command.
-     *
-     * @param command The parsed add command.
-     */
-    private void addTask(Parser.Command command) {
-        if (tasks.isFull()) {
-            ui.showMessage("The task list is full.");
-            return;
-        }
-        if (command.getTask() == null) {
-            ui.showMessage(command.getMessage());
-            return;
-        }
-        ui.showMessage(command.getMessage());
-        tasks.add(command.getTask());
     }
 }

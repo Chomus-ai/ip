@@ -32,19 +32,19 @@ public class Parser {
      */
     public Command parse(String input) {
         if (input.equals(BYE_COMMAND)) {
-            return Command.of(CommandType.EXIT);
+            return new ExitCommand();
         }
         if (input.equals(LIST_COMMAND)) {
-            return Command.of(CommandType.LIST);
+            return new ListCommand();
         }
         if (input.startsWith(MARK_PREFIX)) {
-            return parseTaskNumber(input, MARK_PREFIX, CommandType.MARK);
+            return parseTaskNumber(input, MARK_PREFIX);
         }
         if (input.startsWith(UNMARK_PREFIX)) {
-            return parseTaskNumber(input, UNMARK_PREFIX, CommandType.UNMARK);
+            return parseTaskNumber(input, UNMARK_PREFIX);
         }
         if (input.startsWith(DELETE_PREFIX)) {
-            return parseTaskNumber(input, DELETE_PREFIX, CommandType.DELETE);
+            return parseTaskNumber(input, DELETE_PREFIX);
         }
         if (input.startsWith(TODO_PREFIX)) {
             return parseTodo(input);
@@ -55,7 +55,7 @@ public class Parser {
         if (input.startsWith(EVENT_PREFIX)) {
             return parseEvent(input);
         }
-        return Command.withMessage(CommandType.UNKNOWN, UNKNOWN_COMMAND_MESSAGE);
+        return new MessageCommand(UNKNOWN_COMMAND_MESSAGE);
     }
 
     /**
@@ -63,15 +63,21 @@ public class Parser {
      *
      * @param input The complete command input.
      * @param commandPrefix The prefix before the task number.
-     * @param commandType The type of command being parsed.
      * @return The parsed command or an invalid command with an explanation.
      */
-    private Command parseTaskNumber(String input, String commandPrefix, CommandType commandType) {
+    private Command parseTaskNumber(String input, String commandPrefix) {
         String taskNumber = input.substring(commandPrefix.length()).trim();
         try {
-            return Command.withTaskNumber(commandType, Integer.parseInt(taskNumber));
+            int number = Integer.parseInt(taskNumber);
+            if (commandPrefix.equals(MARK_PREFIX)) {
+                return new MarkCommand(number);
+            }
+            if (commandPrefix.equals(UNMARK_PREFIX)) {
+                return new UnmarkCommand(number);
+            }
+            return new DeleteCommand(number);
         } catch (NumberFormatException exception) {
-            return Command.withMessage(CommandType.INVALID, "Please provide a valid task number.");
+            return new MessageCommand("Please provide a valid task number.");
         }
     }
 
@@ -85,9 +91,9 @@ public class Parser {
         String description = input.substring(TODO_PREFIX.length()).trim();
         try {
             Task task = new Todo(description);
-            return Command.withTask(task, "New objective: " + description);
+            return new AddCommand(task, "New objective: " + description);
         } catch (IllegalArgumentException exception) {
-            return Command.withMessage(CommandType.ADD, exception.getMessage());
+            return new AddCommand(null, exception.getMessage());
         }
     }
 
@@ -102,19 +108,19 @@ public class Parser {
         int byIndex = deadlineInput.indexOf(BY_MARKER);
         int secondByIndex = deadlineInput.indexOf(BY_MARKER, byIndex + BY_MARKER.length());
         if (byIndex <= 0 || secondByIndex >= 0) {
-            return Command.withMessage(CommandType.ADD, DEADLINE_USAGE);
+            return new AddCommand(null, DEADLINE_USAGE);
         }
         String description = deadlineInput.substring(0, byIndex).trim();
         String due = deadlineInput.substring(byIndex + BY_MARKER.length()).trim();
         if (description.isEmpty() || due.isEmpty()) {
-            return Command.withMessage(CommandType.ADD, DEADLINE_USAGE);
+            return new AddCommand(null, DEADLINE_USAGE);
         }
         try {
             Task task = new Deadline(description, due);
             String message = "New objective: " + description + " ( by: " + due + " )";
-            return Command.withTask(task, message);
+            return new AddCommand(task, message);
         } catch (IllegalArgumentException exception) {
-            return Command.withMessage(CommandType.ADD, exception.getMessage());
+            return new AddCommand(null, exception.getMessage());
         }
     }
 
@@ -132,108 +138,21 @@ public class Parser {
         int secondToIndex = eventInput.indexOf(TO_MARKER, toIndex + TO_MARKER.length());
         if (fromIndex <= 0 || toIndex <= fromIndex + FROM_MARKER.length()
                 || secondFromIndex >= 0 || secondToIndex >= 0) {
-            return Command.withMessage(CommandType.ADD, EVENT_USAGE);
+            return new AddCommand(null, EVENT_USAGE);
         }
         String description = eventInput.substring(0, fromIndex).trim();
         String from = eventInput.substring(fromIndex + FROM_MARKER.length(), toIndex).trim();
         String till = eventInput.substring(toIndex + TO_MARKER.length()).trim();
         if (description.isEmpty() || from.isEmpty() || till.isEmpty()) {
-            return Command.withMessage(CommandType.ADD, EVENT_USAGE);
+            return new AddCommand(null, EVENT_USAGE);
         }
         try {
             Task task = new Event(description, from, till);
             String message = "New objective: " + description
                     + "( from: " + from + " to: " + till + " )";
-            return Command.withTask(task, message);
+            return new AddCommand(task, message);
         } catch (IllegalArgumentException exception) {
-            return Command.withMessage(CommandType.ADD, exception.getMessage());
-        }
-    }
-
-    /**
-     * The kinds of commands that the parser can recognize.
-     */
-    public enum CommandType {
-        EXIT,
-        LIST,
-        MARK,
-        UNMARK,
-        DELETE,
-        ADD,
-        INVALID,
-        UNKNOWN
-    }
-
-    /**
-     * Represents one parsed command and the data needed to execute it.
-     */
-    public static final class Command {
-        /** The kind of command represented. */
-        private final CommandType type;
-        /** The one-based task number, when the command has one. */
-        private final int taskNumber;
-        /** The task created by an add command, when parsing succeeds. */
-        private final Task task;
-        /** The response associated with the command, when one is needed. */
-        private final String message;
-
-        private Command(CommandType type, int taskNumber, Task task, String message) {
-            this.type = type;
-            this.taskNumber = taskNumber;
-            this.task = task;
-            this.message = message;
-        }
-
-        private static Command of(CommandType type) {
-            return new Command(type, -1, null, null);
-        }
-
-        private static Command withTaskNumber(CommandType type, int taskNumber) {
-            return new Command(type, taskNumber, null, null);
-        }
-
-        private static Command withTask(Task task, String message) {
-            return new Command(CommandType.ADD, -1, task, message);
-        }
-
-        private static Command withMessage(CommandType type, String message) {
-            return new Command(type, -1, null, message);
-        }
-
-        /**
-         * Returns the command type.
-         *
-         * @return The command type.
-         */
-        public CommandType getType() {
-            return type;
-        }
-
-        /**
-         * Returns the one-based task number in this command.
-         *
-         * @return The task number, or {@code -1} if the command has none.
-         */
-        public int getTaskNumber() {
-            return taskNumber;
-        }
-
-        /**
-         * Returns the task created by this command.
-         *
-         * @return The created task, or {@code null} if parsing did not create one.
-         */
-        public Task getTask() {
-            return task;
-        }
-
-        /**
-         * Returns the response associated with this command.
-         *
-         * @return The response message, or {@code null} if none is needed.
-         */
-        public String getMessage() {
-            return message;
+            return new AddCommand(null, exception.getMessage());
         }
     }
 }
