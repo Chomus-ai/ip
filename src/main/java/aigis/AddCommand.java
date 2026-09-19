@@ -26,16 +26,16 @@ public final class AddCommand extends Command {
      * @param tasks The task list receiving the task.
      * @param ui The UI used to display the result.
      * @param storage The storage service, which saves when the application exits.
+     * @throws AigisException If the task could not be parsed.
      */
     @Override
-    public void execute(TaskList tasks, Ui ui, Storage storage) {
+    public void execute(TaskList tasks, Ui ui, Storage storage) throws AigisException {
         if (tasks.isFull()) {
             ui.showMessage("The task list is full.");
             return;
         }
         if (task == null) {
-            ui.showMessage(message);
-            return;
+            throw new AigisException(message);
         }
         ui.showMessage(message);
         tasks.add(task);

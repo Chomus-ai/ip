@@ -10,8 +10,9 @@ public abstract class Command {
      * @param tasks The task list changed or queried by the command.
      * @param ui The UI used to display the command result.
      * @param storage The storage service available to the command.
+     * @throws AigisException If the command cannot be completed.
      */
-    public abstract void execute(TaskList tasks, Ui ui, Storage storage);
+    public abstract void execute(TaskList tasks, Ui ui, Storage storage) throws AigisException;
 
     /**
      * Checks whether this command ends the application.

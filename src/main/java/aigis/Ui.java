@@ -62,6 +62,15 @@ public class Ui implements AutoCloseable {
     }
 
     /**
+     * Displays an error message to the user.
+     *
+     * @param message The error message to display.
+     */
+    public void showError(String message) {
+        showMessage(message);
+    }
+
+    /**
      * Displays every task with its one-based number.
      *
      * @param tasks The tasks to display.
