@@ -9,7 +9,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import aigis.task.Deadline;
@@ -36,26 +35,22 @@ public final class Storage {
     /**
      * Saves the current tasks, replacing the previous contents of the data file.
      *
-     * @param tasks The task storage to save.
-     * @param taskCount The number of valid tasks in {@code tasks}.
+     * @param tasks The task list to save.
      */
-    public void save(Task[] tasks, int taskCount) {
+    public void save(TaskList tasks) {
         if (tasks == null) {
             reportStorageError("Could not save tasks: task storage is null.");
             return;
         }
 
-        if (taskCount < 0 || taskCount > tasks.length) {
-            reportStorageError("Could not save tasks: task count is outside the task storage.");
-            return;
-        }
         List<String> records = new ArrayList<>();
-        for (int i = 0; i < taskCount; i++) {
-            if (tasks[i] == null) {
+        for (int i = 0; i < tasks.size(); i++) {
+            Task task = tasks.get(i);
+            if (task == null) {
                 reportStorageError("Could not save tasks: task " + (i + 1) + " is null.");
                 return;
             }
-            String record = tasks[i].toStorageString();
+            String record = task.toStorageString();
             if (record == null || record.isBlank() || record.indexOf('\n') >= 0
                     || record.indexOf('\r') >= 0) {
                 reportStorageError("Could not save tasks: task " + (i + 1)
@@ -99,39 +94,32 @@ public final class Storage {
     }
 
     /**
-     * Loads saved tasks into the supplied task storage.
+     * Loads saved tasks from the data file.
      *
-     * @param tasks The task storage that receives the loaded tasks.
-     * @return The number of tasks loaded successfully.
+     * @return A task list containing all valid tasks that were loaded.
      */
-    public int load(Task[] tasks) {
-        if (tasks == null) {
-            reportStorageError("Could not load tasks: task storage is null.");
-            return 0;
-        }
-        Arrays.fill(tasks, null);
+    public TaskList load() {
+        TaskList tasks = new TaskList();
 
         try {
             if (!Files.exists(dataFile)) {
-                return 0;
+                return tasks;
             }
             if (!Files.isRegularFile(dataFile)) {
                 reportStorageError("Could not load tasks: the data path is not a file.");
-                return 0;
+                return tasks;
             }
         } catch (SecurityException exception) {
             reportStorageError("Could not load tasks: access to the data file was denied.");
-            return 0;
+            return tasks;
         }
 
-        int taskCount = 0;
         try (BufferedReader reader = Files.newBufferedReader(dataFile, StandardCharsets.UTF_8)) {
             String line;
-            while (taskCount < tasks.length && (line = reader.readLine()) != null) {
+            while (!tasks.isFull() && (line = reader.readLine()) != null) {
                 Task task = parseTask(line);
                 if (task != null) {
-                    tasks[taskCount] = task;
-                    taskCount++;
+                    tasks.add(task);
                 }
             }
         } catch (IOException exception) {
@@ -139,7 +127,7 @@ public final class Storage {
         } catch (SecurityException exception) {
             reportStorageError("Could not load tasks: access to the data file was denied.");
         }
-        return taskCount;
+        return tasks;
     }
 
     /**

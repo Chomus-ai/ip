@@ -23,19 +23,6 @@ public class TaskList {
     }
 
     /**
-     * Creates a task list containing the successfully loaded tasks.
-     *
-     * @param savedTasks The array containing loaded tasks.
-     * @param savedTaskCount The number of valid tasks in {@code savedTasks}.
-     */
-    public TaskList(Task[] savedTasks, int savedTaskCount) {
-        tasks = new ArrayList<>(savedTaskCount);
-        for (int i = 0; i < savedTaskCount; i++) {
-            tasks.add(savedTasks[i]);
-        }
-    }
-
-    /**
      * Returns the number of tasks in this list.
      *
      * @return The number of stored tasks.
@@ -87,12 +74,4 @@ public class TaskList {
         return tasks.remove(index);
     }
 
-    /**
-     * Returns the tasks as an array for persistence.
-     *
-     * @return An array containing all stored tasks.
-     */
-    public Task[] toArray() {
-        return tasks.toArray(new Task[0]);
-    }
 }

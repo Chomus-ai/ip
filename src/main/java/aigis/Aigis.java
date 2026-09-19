@@ -16,15 +16,13 @@ public class Aigis {
         try (Ui ui = new Ui()) {
             ui.showWelcome();
 
-            Task[] savedTasks = new Task[TaskList.MAX_TASKS];
-            int savedTaskCount = storage.load(savedTasks);
-            TaskList tasks = new TaskList(savedTasks, savedTaskCount);
+            TaskList tasks = storage.load();
             Parser parser = new Parser();
 
             try {
                 runCommandLoop(tasks, ui, parser);
             } finally {
-                storage.save(tasks.toArray(), tasks.size());
+                storage.save(tasks);
             }
             ui.showGoodbye();
         }
