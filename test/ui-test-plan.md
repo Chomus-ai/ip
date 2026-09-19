@@ -58,8 +58,8 @@ list
 todo   
 todo valid todo
 list
-deadline /by Friday
-deadline submit report /by Friday
+deadline /by 2019-10-15
+deadline submit report /by 2019-10-15
 list
 event /from 9am /to 10am
 event team meeting /from 9am /to 10am
@@ -96,11 +96,11 @@ _______
 Please use: deadline <description> /by <date>
 _______
 _______
-New objective: submit report ( by: Friday )
+New objective: submit report ( by: Oct 15 2019 )
 _______
 _______
 1. [T] [ ] valid todo
-2. [D] [ ] submit report ( by: Friday )
+2. [D] [ ] submit report ( by: Oct 15 2019 )
 _______
 _______
 Please use: event <description> /from <start> /to <end>
@@ -110,7 +110,7 @@ New objective: team meeting( from: 9am to: 10am )
 _______
 _______
 1. [T] [ ] valid todo
-2. [D] [ ] submit report ( by: Friday )
+2. [D] [ ] submit report ( by: Oct 15 2019 )
 3. [E] [ ] team meeting( from: 9am to: 10am )
 _______
 _______
@@ -222,6 +222,7 @@ Inputs:
 ```text
 deadline report
 deadline report /by
+deadline report /by Friday
 event team meeting
 event team meeting /from 10am
 event team meeting /from 10am /to
@@ -242,6 +243,9 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
+Please use: deadline <description> /by <date>
+_______
 _______
 Please use: deadline <description> /by <date>
 _______
@@ -272,7 +276,7 @@ Aim: Verify that deadline and event commands parse their fields and display them
 Inputs:
 
 ```text
-deadline submit report /by Friday
+deadline submit report /by 2019-10-15
 event team meeting /from 10am /to 11am
 list
 bye
@@ -293,13 +297,13 @@ Aigis is ready to help!
 Awaiting commands...
 
 _______
-New objective: submit report ( by: Friday )
+New objective: submit report ( by: Oct 15 2019 )
 _______
 _______
 New objective: team meeting( from: 10am to: 11am )
 _______
 _______
-1. [D] [ ] submit report ( by: Friday )
+1. [D] [ ] submit report ( by: Oct 15 2019 )
 2. [E] [ ] team meeting( from: 10am to: 11am )
 _______
 _______
@@ -372,7 +376,7 @@ todo second task
 unmark 1
 mark 0
 list
-deadline submit report /by tomorrow
+deadline submit report /by 2019-10-16
 mark 3
 unmark nope
 list
@@ -416,10 +420,10 @@ _______
 2. [T] [ ] second task
 _______
 _______
-New objective: submit report ( by: tomorrow )
+New objective: submit report ( by: Oct 16 2019 )
 _______
 _______
-Marked as done: [D] [X] submit report ( by: tomorrow )
+Marked as done: [D] [X] submit report ( by: Oct 16 2019 )
 _______
 _______
 Please provide a valid task number.
@@ -427,7 +431,7 @@ _______
 _______
 1. [T] [ ] first task
 2. [T] [ ] second task
-3. [D] [X] submit report ( by: tomorrow )
+3. [D] [X] submit report ( by: Oct 16 2019 )
 _______
 _______
 _______
@@ -447,7 +451,7 @@ Inputs:
 event planning /to 11am /from 10am
 deadline report /by
 todo retained task
-deadline submit report /by Friday
+deadline submit report /by 2019-10-15
 event team meeting /from 10am /to 11am
 list
 mark 2
@@ -480,25 +484,25 @@ _______
 New objective: retained task
 _______
 _______
-New objective: submit report ( by: Friday )
+New objective: submit report ( by: Oct 15 2019 )
 _______
 _______
 New objective: team meeting( from: 10am to: 11am )
 _______
 _______
 1. [T] [ ] retained task
-2. [D] [ ] submit report ( by: Friday )
+2. [D] [ ] submit report ( by: Oct 15 2019 )
 3. [E] [ ] team meeting( from: 10am to: 11am )
 _______
 _______
-Marked as done: [D] [X] submit report ( by: Friday )
+Marked as done: [D] [X] submit report ( by: Oct 15 2019 )
 _______
 _______
 Please use: event <description> /from <start> /to <end>
 _______
 _______
 1. [T] [ ] retained task
-2. [D] [X] submit report ( by: Friday )
+2. [D] [X] submit report ( by: Oct 15 2019 )
 3. [E] [ ] team meeting( from: 10am to: 11am )
 _______
 _______
@@ -547,7 +551,6 @@ Awaiting commands...
 
 _______
 1. [T] [X] read / book
-2. [D] [ ] send report ( by: Friday )
 _______
 _______
 _______
@@ -564,7 +567,7 @@ Aim: Verify that repeated deadline or event markers are rejected without adding 
 Inputs:
 
 ```text
-deadline report /by Friday /by Monday
+deadline report /by 2019-10-15 /by 2019-10-16
 event meeting /from 10am /to 11am /to 12pm
 todo retained task
 list
@@ -613,7 +616,7 @@ Initial data:
 
 ```text
 T / 1 / read book
-D / 0 / return book  (June 6th)
+D / 0 / return book  (2019-06-06)
 E / 0 / project meeting (Aug 6th 2-4pm)
 ```
 
@@ -640,7 +643,7 @@ Awaiting commands...
 
 _______
 1. [T] [X] read book
-2. [D] [ ] return book ( by: June 6th )
+2. [D] [ ] return book ( by: Jun 06 2019 )
 3. [E] [ ] project meeting( from: Aug 6th to: 2-4pm )
 _______
 _______
@@ -659,7 +662,7 @@ Inputs:
 
 ```text
 todo read book
-deadline return book /by June 6th
+deadline return book /by 2019-06-06
 event project meeting /from Aug 6th /to 2-4pm
 mark 1
 list
@@ -684,7 +687,7 @@ _______
 New objective: read book
 _______
 _______
-New objective: return book ( by: June 6th )
+New objective: return book ( by: Jun 06 2019 )
 _______
 _______
 New objective: project meeting( from: Aug 6th to: 2-4pm )
@@ -694,7 +697,7 @@ Marked as done: [T] [X] read book
 _______
 _______
 1. [T] [X] read book
-2. [D] [ ] return book ( by: June 6th )
+2. [D] [ ] return book ( by: Jun 06 2019 )
 3. [E] [ ] project meeting( from: Aug 6th to: 2-4pm )
 _______
 _______

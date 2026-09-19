@@ -8,6 +8,9 @@ import java.nio.file.AtomicMoveNotSupportedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardCopyOption;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -191,7 +194,12 @@ public final class Storage {
         String description = details.substring(0, openingParenthesis).trim();
         String timing = details.substring(openingParenthesis + 1, details.length() - 1).trim();
         if (type.equals("D")) {
-            return new Deadline(description, timing);
+            try {
+                LocalDate dueDate = LocalDate.parse(timing, DateTimeFormatter.ISO_LOCAL_DATE);
+                return new Deadline(description, dueDate);
+            } catch (DateTimeParseException exception) {
+                throw new IllegalArgumentException("Malformed deadline date.", exception);
+            }
         }
         if (type.equals("E")) {
             int separator = timing.lastIndexOf(' ');
