@@ -71,6 +71,13 @@ public class Ui implements AutoCloseable {
     }
 
     /**
+     * Displays the divider separating command interactions.
+     */
+    public void showLine() {
+        System.out.println("_______");
+    }
+
+    /**
      * Displays every task with its one-based number.
      *
      * @param tasks The tasks to display.

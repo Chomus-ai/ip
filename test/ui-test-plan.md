@@ -39,6 +39,8 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -79,18 +81,40 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
+_______
+_______
 Task description cannot be null or blank.
+_______
+_______
 New objective: valid todo
+_______
+_______
 1. [T] [ ] valid todo
+_______
+_______
 Please use: deadline <description> /by <date>
+_______
+_______
 New objective: submit report ( by: Friday )
+_______
+_______
 1. [T] [ ] valid todo
 2. [D] [ ] submit report ( by: Friday )
+_______
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
 New objective: team meeting( from: 9am to: 10am )
+_______
+_______
 1. [T] [ ] valid todo
 2. [D] [ ] submit report ( by: Friday )
 3. [E] [ ] team meeting( from: 9am to: 10am )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -122,7 +146,11 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 I don't understand that command.
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -159,12 +187,26 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 New objective: read chapter
+_______
+_______
 1. [T] [ ] read chapter
+_______
+_______
 Marked as done: [T] [X] read chapter
+_______
+_______
 1. [T] [X] read chapter
+_______
+_______
 Unmarked as done: [T] [ ] read chapter
+_______
+_______
 1. [T] [ ] read chapter
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -200,11 +242,23 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 Please use: deadline <description> /by <date>
+_______
+_______
 Please use: deadline <description> /by <date>
+_______
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -238,10 +292,18 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 New objective: submit report ( by: Friday )
+_______
+_______
 New objective: team meeting( from: 10am to: 11am )
+_______
+_______
 1. [D] [ ] submit report ( by: Friday )
 2. [E] [ ] team meeting( from: 10am to: 11am )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -276,10 +338,20 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 New objective: task
+_______
+_______
 Please provide a valid task number.
+_______
+_______
 That task does not exist.
+_______
+_______
 1. [T] [ ] task
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -321,20 +393,44 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 New objective: first task
+_______
+_______
 Marked as done: [T] [X] first task
+_______
+_______
 Please provide a valid task number.
+_______
+_______
 New objective: second task
+_______
+_______
 Unmarked as done: [T] [ ] first task
+_______
+_______
 That task does not exist.
+_______
+_______
 1. [T] [ ] first task
 2. [T] [ ] second task
+_______
+_______
 New objective: submit report ( by: tomorrow )
+_______
+_______
 Marked as done: [D] [X] submit report ( by: tomorrow )
+_______
+_______
 Please provide a valid task number.
+_______
+_______
 1. [T] [ ] first task
 2. [T] [ ] second task
 3. [D] [X] submit report ( by: tomorrow )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -374,19 +470,39 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
 Please use: deadline <description> /by <date>
+_______
+_______
 New objective: retained task
+_______
+_______
 New objective: submit report ( by: Friday )
+_______
+_______
 New objective: team meeting( from: 10am to: 11am )
+_______
+_______
 1. [T] [ ] retained task
 2. [D] [ ] submit report ( by: Friday )
 3. [E] [ ] team meeting( from: 10am to: 11am )
+_______
+_______
 Marked as done: [D] [X] submit report ( by: Friday )
+_______
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
 1. [T] [ ] retained task
 2. [D] [X] submit report ( by: Friday )
 3. [E] [ ] team meeting( from: 10am to: 11am )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -429,8 +545,12 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 1. [T] [X] read / book
 2. [D] [ ] send report ( by: Friday )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -465,10 +585,20 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 Please use: deadline <description> /by <date>
+_______
+_______
 Please use: event <description> /from <start> /to <end>
+_______
+_______
 New objective: retained task
+_______
+_______
 1. [T] [ ] retained task
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -508,9 +638,13 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 1. [T] [X] read book
 2. [D] [ ] return book ( by: June 6th )
 3. [E] [ ] project meeting( from: Aug 6th to: 2-4pm )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________
@@ -546,13 +680,25 @@ Expected output:
 Aigis is ready to help!
 Awaiting commands...
 
+_______
 New objective: read book
+_______
+_______
 New objective: return book ( by: June 6th )
+_______
+_______
 New objective: project meeting( from: Aug 6th to: 2-4pm )
+_______
+_______
 Marked as done: [T] [X] read book
+_______
+_______
 1. [T] [X] read book
 2. [D] [ ] return book ( by: June 6th )
 3. [E] [ ] project meeting( from: Aug 6th to: 2-4pm )
+_______
+_______
+_______
  ----------------------------------------------------
 Tasks completed. See you again soon!
 __________________________________________________________

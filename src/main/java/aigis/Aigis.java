@@ -69,14 +69,17 @@ public class Aigis implements AutoCloseable {
     private void runCommandLoop() {
         String input;
         while ((input = ui.readCommand()) != null) {
-            Command command = parser.parse(input);
+            ui.showLine();
             try {
+                Command command = parser.parse(input);
                 command.execute(tasks, ui, storage);
+                if (command.isExit()) {
+                    break;
+                }
             } catch (AigisException exception) {
                 ui.showError(exception.getMessage());
-            }
-            if (command.isExit()) {
-                break;
+            } finally {
+                ui.showLine();
             }
         }
     }
