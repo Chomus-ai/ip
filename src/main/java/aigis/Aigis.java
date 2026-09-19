@@ -5,44 +5,77 @@ import aigis.task.Task;
 /**
  * A simple command-line task manager.
  */
-public class Aigis {
+public class Aigis implements AutoCloseable {
+    private static final String DEFAULT_FILE_PATH = "data/aigis.txt";
+
+    /** The persistence component used by the application. */
+    private final Storage storage;
+
+    /** The task collection used by the application. */
+    private final TaskList tasks;
+
+    /** The console interaction component used by the application. */
+    private final Ui ui;
+
+    /** The command parser used by the application. */
+    private final Parser parser;
+
+    /**
+     * Creates an Aigis application using the specified data file.
+     *
+     * @param filePath The path of the file used to load and save tasks.
+     */
+    public Aigis(String filePath) {
+        storage = new Storage(filePath);
+        ui = new Ui();
+        tasks = storage.load();
+        parser = new Parser();
+    }
+
+    /**
+     * Runs the command-line task manager until the user exits or input ends.
+     */
+    public void run() {
+        ui.showWelcome();
+        try {
+            runCommandLoop();
+        } finally {
+            storage.save(tasks);
+        }
+        ui.showGoodbye();
+    }
+
     /**
      * Starts the Aigis command-line task manager.
      *
      * @param args Command-line arguments, which are not used.
      */
     public static void main(String[] args) {
-        Storage storage = new Storage("data/aigis.txt");
-        try (Ui ui = new Ui()) {
-            ui.showWelcome();
-
-            TaskList tasks = storage.load();
-            Parser parser = new Parser();
-
-            try {
-                runCommandLoop(tasks, ui, parser);
-            } finally {
-                storage.save(tasks);
-            }
-            ui.showGoodbye();
+        try (Aigis aigis = new Aigis(DEFAULT_FILE_PATH)) {
+            aigis.run();
         }
+    }
+
+    /**
+     * Closes the application's console input.
+     */
+    @Override
+    public void close() {
+        ui.close();
     }
 
     /**
      * Reads and processes commands until the user exits or input is exhausted.
      *
-     * @param tasks The task storage used by the command loop.
-     * @param ui The UI used for console input and output.
-     * @param parser The parser used to interpret user commands.
      */
-    private static void runCommandLoop(TaskList tasks, Ui ui, Parser parser) {
+    private void runCommandLoop() {
         String input;
         while ((input = ui.readCommand()) != null) {
             Parser.Command command = parser.parse(input);
             if (command.getType() == Parser.CommandType.EXIT) {
                 break;
             }
-            processCommand(command, tasks, ui);
+            processCommand(command);
         }
     }
 
@@ -50,23 +83,21 @@ public class Aigis {
      * Executes one parsed command.
      *
      * @param command The parsed command to execute.
-     * @param tasks The task storage used by the command.
-     * @param ui The UI used to display command results.
      */
-    private static void processCommand(Parser.Command command, TaskList tasks, Ui ui) {
+    private void processCommand(Parser.Command command) {
         switch (command.getType()) {
         case LIST:
             ui.showTasks(tasks);
             break;
         case MARK:
         case UNMARK:
-            updateTaskStatus(command, tasks, ui);
+            updateTaskStatus(command);
             break;
         case DELETE:
-            deleteTask(command, tasks, ui);
+            deleteTask(command);
             break;
         case ADD:
-            addTask(command, tasks, ui);
+            addTask(command);
             break;
         case INVALID:
         case UNKNOWN:
@@ -81,10 +112,8 @@ public class Aigis {
      * Updates a task's completion status based on a mark or unmark command.
      *
      * @param command The parsed status command.
-     * @param tasks The task storage containing the target task.
-     * @param ui The UI used to display the result.
      */
-    private static void updateTaskStatus(Parser.Command command, TaskList tasks, Ui ui) {
+    private void updateTaskStatus(Parser.Command command) {
         int taskIndex = command.getTaskNumber() - 1;
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
             ui.showMessage("That task does not exist.");
@@ -100,10 +129,8 @@ public class Aigis {
      * Deletes a task selected by its one-based display number.
      *
      * @param command The parsed delete command.
-     * @param tasks The task storage from which to remove the target task.
-     * @param ui The UI used to display the result.
      */
-    private static void deleteTask(Parser.Command command, TaskList tasks, Ui ui) {
+    private void deleteTask(Parser.Command command) {
         int taskIndex = command.getTaskNumber() - 1;
         if (taskIndex < 0 || taskIndex >= tasks.size()) {
             ui.showMessage("That task does not exist.");
@@ -117,10 +144,8 @@ public class Aigis {
      * Adds a task represented by a parsed add command.
      *
      * @param command The parsed add command.
-     * @param tasks The task storage receiving the new task.
-     * @param ui The UI used to display the result.
      */
-    private static void addTask(Parser.Command command, TaskList tasks, Ui ui) {
+    private void addTask(Parser.Command command) {
         if (tasks.isFull()) {
             ui.showMessage("The task list is full.");
             return;
