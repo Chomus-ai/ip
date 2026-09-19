@@ -64,7 +64,6 @@ public class Aigis implements AutoCloseable {
 
     /**
      * Reads and processes commands until the user exits or input is exhausted.
-     *
      */
     private void runCommandLoop() {
         String input;

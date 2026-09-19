@@ -35,16 +35,31 @@ public class Deadline extends Task {
         return due;
     }
 
+    /**
+     * Returns the storage type marker for deadline tasks.
+     *
+     * @return The deadline storage type marker.
+     */
     @Override
     protected String getStorageType() {
         return "D";
     }
 
+    /**
+     * Returns the serialized deadline description and due date.
+     *
+     * @return The storage details for this deadline.
+     */
     @Override
     protected String getStorageDetails() {
         return getDescription() + "  (" + due + ")";
     }
 
+    /**
+     * Returns the display form of this deadline.
+     *
+     * @return The formatted deadline description and due date.
+     */
     @Override
     public String toString() {
         return "[D] " + super.toString() + " ( by: " + DateFormats.formatDate(due) + " )";

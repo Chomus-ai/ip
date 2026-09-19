@@ -14,11 +14,21 @@ public class Todo extends Task {
         super(description);
     }
 
+    /**
+     * Returns the storage type marker for todo tasks.
+     *
+     * @return The todo storage type marker.
+     */
     @Override
     protected String getStorageType() {
         return "T";
     }
 
+    /**
+     * Returns the display form of this todo.
+     *
+     * @return The formatted todo description.
+     */
     @Override
     public String toString() {
         return "[T] " + super.toString();

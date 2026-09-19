@@ -25,16 +25,31 @@ public class Event extends Task {
         this.till = till;
     }
 
+    /**
+     * Returns the storage type marker for event tasks.
+     *
+     * @return The event storage type marker.
+     */
     @Override
     protected String getStorageType() {
         return "E";
     }
 
+    /**
+     * Returns the serialized event description and times.
+     *
+     * @return The storage details for this event.
+     */
     @Override
     protected String getStorageDetails() {
         return getDescription() + " (" + from + " " + till + ")";
     }
 
+    /**
+     * Returns the display form of this event.
+     *
+     * @return The formatted event description and times.
+     */
     @Override
     public String toString() {
         return "[E] " + super.toString() + "( from: " + from + " to: " + till + " )";
