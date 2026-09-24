@@ -25,9 +25,11 @@ public class Ui implements AutoCloseable {
                     """;
 
     /** The closing message shown when Aigis exits. */
-    private static final String CLOSING = " ----------------------------------------------------\n"
-            + "Tasks completed. See you again soon!\n"
-            + "__________________________________________________________\n";
+    private static final String CLOSING = """
+             ----------------------------------------------------
+             Tasks completed. See you again soon!
+             __________________________________________________________
+             """;
 
     /** Reads commands from standard input. */
     private final Scanner scanner;
@@ -97,6 +99,15 @@ public class Ui implements AutoCloseable {
      * @param tasks The tasks to display.
      */
     public void showTasks(List<Task> tasks) {
+        showIndexedTasks(tasks);
+    }
+
+    /**
+     * Displays a sequence of tasks with one-based numbering.
+     *
+     * @param tasks The tasks to display.
+     */
+    private void showIndexedTasks(List<Task> tasks) {
         for (int i = 0; i < tasks.size(); i++) {
             showMessage(i + 1 + ". " + tasks.get(i));
         }
