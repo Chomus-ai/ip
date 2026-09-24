@@ -21,7 +21,10 @@ save your task list locally between sessions.
 5. Right-click the file and select **Run `Aigis.main()`**.
 
 When Aigis starts, it displays a welcome message and waits for commands.
-Tasks are saved in `data/aigis.txt` when the application exits.
+Tasks are saved in `data/aigis.txt` when the application exits. If the file
+is missing, Aigis starts with an empty task list; if the file contains malformed
+records, those entries are skipped during loading and the rest of the list is
+kept.
 
 ## Command Summary
 
@@ -154,12 +157,14 @@ Use `bye` to exit the chatbot:
 bye
 ```
 
-Aigis saves the current task list to `data/aigis.txt` before closing.
+Aigis saves the current task list to `data/aigis.txt` before closing. The save
+operation writes a fresh backup of the task file, so the task list remains
+consistent even if the app ends unexpectedly during a save.
 
 ## Invalid Commands
 
-Aigis reports an error when a command is incomplete, a date is invalid, or a
-task number does not exist. For example:
+Aigis reports an error when a command is incomplete, blank, invalid, or a task
+number does not exist. For example:
 
 ```text
 deadline submit report /by tomorrow
