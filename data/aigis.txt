@@ -1,2 +1,2 @@
-T / 1 / eat
-E / 0 / tie (1 2)
+D / 0 / submit report  (2026-09-30)
+E / 0 / team meeting (9am 10am)
